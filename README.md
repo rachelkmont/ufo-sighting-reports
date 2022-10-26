@@ -1,10 +1,13 @@
 # Project Idea
 
 ## Main Idea/Question
-__What are the patterns underlying UFO sightings in the US__
+
+__What are the patterns underlying UFO sightings in the US?__
 
 ## Dataset
+
 Potential Dataset 1:  https://www.kaggle.com/datasets/NUFORC/ufo-sightings
+
 Potential Dataset 2: https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000
 
 This is data from the National UFO Research Center (NUFORC) collected of 80000+ UFO sightings over the last century. The sightings are predominantly located in the United States. The data details variables including: datetime, city, state, country, shape of ufo, duration in seconds, duration in hours/min, comments, lat, longitude of UFO sightings.
