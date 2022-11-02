@@ -1,0 +1,166 @@
+---
+title: "group_proj"
+author: "Rachel Montgomery"
+date: "2022-11-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+library(readr)
+UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
+    col_types = cols(month = col_character(), 
+        hour = col_time(format = "%H")))
+
+View(UFO_and_Weather)
+
+```
+```{r}
+#making new column with month names
+
+UFO_and_Weather <- UFO_and_Weather %>%
+  mutate(Month= case_when(
+    month=="1" ~ "January",
+    month=="2" ~ "February",
+    month=="3" ~ "March",
+    month=="4" ~ "April",
+    month=="5" ~ "May",
+    month=="6" ~ "June",
+    month=="7" ~ "July",
+    month=="8" ~ "August",
+    month=="9" ~ "September",
+    month=="10" ~ "October",
+    month=="11" ~ "November",
+    month=="12" ~ "December"))
+
+```
+
+
+
+Goals:
+Are UFO sightings more prevalent during certain months of the year?
+What time of day do UFO sightings occur? Are reports less reliable in these times (e.g. Friday/Saturday night, low vision)
+How long does the average UFO sighting last?
+
+```{r}
+#Understanding what the data represents
+View(UFO_and_Weather)
+
+head(UFO_and_Weather)
+
+dim(UFO_and_Weather)
+
+str(UFO_and_Weather)
+```
+22,482 obs and 18 variables. 
+
+#1 Are UFO sightings more prevalent during certain months of the year?
+```{r}
+ggplot(UFO_and_Weather, aes(x=Month))+
+  geom_bar()+
+  coord_flip()
+
+#July has the most 
+```
+
+
+# 1.2 Is there a most popular season for UFO sightings?
+
+```{r}
+#first creating a season variable
+UFO_and_Weather <- UFO_and_Weather %>%
+  mutate(season= case_when(
+    month=="12" | month=="1" | month=="2" ~ "Winter"  ,
+    month=="3" |  month=="4" | month=="5" ~ "Spring",
+    month=="6" | month=="7" | month=="8" ~ "Summer",
+    month=="9" | month=="10" |  month=="11" ~ "Fall"))
+
+#spring is march - may (3,4,5)
+#summer is june to august (6,7,8)
+#fall is september to november (9,10,11)
+#winter is december to february (12, 1, 2)
+```
+
+
+
+#2 What time of day do UFO sightings occur?
+```{r}
+#first making time into am and pm hour times
+UFO_and_Weather <- UFO_and_Weather %>%
+  mutate(time_of_day= case_when(
+    hour >=6 & hour <= 18 ~ "day",
+    hour < 5  ~ "night",
+    hour >18 ~ "night"))
+
+#next, making day and night variables
+#day is 6 am to 6 pm (6  to 18)
+#night is 12 am to 6am, and 6 pm to 12 pm (0-6, and 18-24)
+UFO_and_Weather <- UFO_and_Weather %>%
+  mutate(time_of_day= case_when(
+    hour >=6 & hour <= 18 ~ "day",
+    hour < 5  ~ "night",
+    hour >18 ~ "night"))
+
+```
+
+
+```{r}
+ggplot(UFO_and_Weather, aes(x=hour))+
+  geom_bar()+
+  coord_flip()
+```
+We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm.
+
+
+```{r}
+ggplot(UFO_and_Weather, aes(x =month)) +
+        geom_boxplot() +
+        scale_x_discrete(name = "Month") +
+        scale_y_continuous(name = "Mean ozone in\nparts per billion") + 
+        ggtitle("Boxplot of mean ozone by month") +
+        theme_minimal()
+
+
+
+ggplot(air_sub, aes(x = month_cat, y = Ozone)) +
+        geom_boxplot() +
+        scale_x_discrete(name = "Month") +
+        scale_y_continuous(name = "Mean ozone in\nparts per billion",
+                          breaks = seq(0, 175, 25),
+                          limits=c(0, 175)) + 
+        ggtitle("Boxplot of mean ozone by month") +
+        theme_minimal()
+```
+
+
+
+```{r}
+ggplot(UFO_and_Weather, aes(x=season))+
+  geom_bar()+
+  coord_flip()
+```
+We can see that the fall months have the most sightings, with summer having the 2nd most.
+
+
+#3 How long does the average UFO sighting last?
+We can't do this because the duration variable was taken out.
+
+
+
+
+
+
+
+
+
+
