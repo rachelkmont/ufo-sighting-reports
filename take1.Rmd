@@ -348,7 +348,7 @@ We can see the most common words are those typical for a UFO report. Light, sky,
 
 Let's explore sentiment analysis.
 ```{r}
-sentiments <- get_sentiments("bing")
+sentiments <- get_sentiments("nrc")
 
 df_sentiments1 <- ufo_no_stop %>% left_join(sentiments)
 
@@ -366,8 +366,14 @@ df_sentiments_filtered1 %>%
 ```
 
 
-
 Okay I think that this a lot of baloney 
+
+BUT there is a high amount for positive and trust! which is neato
+
+
+ok trying 
+
+
 
 
 
