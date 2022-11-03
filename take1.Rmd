@@ -123,23 +123,7 @@ We can see that the most sightings are at night, specifically between the hours 
 
 
 ```{r}
-ggplot(UFO_and_Weather, aes(x =month)) +
-        geom_boxplot() +
-        scale_x_discrete(name = "Month") +
-        scale_y_continuous(name = "Mean ozone in\nparts per billion") + 
-        ggtitle("Boxplot of mean ozone by month") +
-        theme_minimal()
 
-
-
-ggplot(air_sub, aes(x = month_cat, y = Ozone)) +
-        geom_boxplot() +
-        scale_x_discrete(name = "Month") +
-        scale_y_continuous(name = "Mean ozone in\nparts per billion",
-                          breaks = seq(0, 175, 25),
-                          limits=c(0, 175)) + 
-        ggtitle("Boxplot of mean ozone by month") +
-        theme_minimal()
 ```
 
 
@@ -152,15 +136,89 @@ ggplot(UFO_and_Weather, aes(x=season))+
 We can see that the fall months have the most sightings, with summer having the 2nd most.
 
 
+avg wind speed vs count (and do that for months or season)
+
 #3 How long does the average UFO sighting last?
 We can't do this because the duration variable was taken out.
 
 
+#4 Is there a correlation between the UFO sightings and the time?
+You can see if there’s any correlation between the number of sightings and the time of day. Also, you could test with the month and the year.
+```{r}
+ggplot(UFO_and_Weather, aes(x=hour)) + 
+  geom_histogram(bins=24, aes(fill=..count..)) +
+  theme_bw() + 
+  scale_fill_gradient(low = "palegreen", high = "palegreen4") +
+  labs(x = "Hour of the day", y = "Number of sightings", 
+       title="Correlation between daytime / UFO sightings", 
+       subtitle = "Sightings during the day")
+```
+
+The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it’s worth noting that there have been reports of UFOs during the day as well.
 
 
+#5 Is there a correlation between the UFO shapes and time?
+You can look at the relationship between the shapes and the time of day. This may explain why the light shape is the most frequently reported shape.
+
+```{r}
+shapesDaytime <- 
+  UFO_and_Weather %>% 
+  group_by(hour, shape) %>% 
+  summarize(count=n());
+  
+ggplot(shapesDaytime, aes(x=hour, y=shape)) + 
+  geom_point(aes(color=count, size=count)) + 
+  scale_colour_gradient(low = "palegreen", high="palegreen4") +
+  labs(x = "Hour of the day", y = "UFO Shape", 
+       title="Correlation between daytime / UFO Shape", 
+       subtitle = "Sightings during the day")
+```
+You can see from the plot that the shapes are more prevalent/persistent at night as well. We can see that light appears more frequently at night and in the evening, but less frequently during the day than other common shapes.
 
 
+Now doing the “chi-square” test to see if there’s a link between the time of day and the shapes.
 
+The Chi-Square independence test is performed, assuming that: Each sample observation is independent. Each case contributes to at least one entry.
+```{r}
+chisq.test(UFO_and_Weather, hour, simulate.p.value=T);
+```
+
+this does not work :(
+
+#6 Has the frequency of UFO sightings risen over time?
+
+```{r}
+# SIGHTINGS BY YEAR
+sightingsYear <- 
+  UFO_and_Weather %>% group_by(year) %>% 
+  summarize(count=n());
+
+# REPORTS BY YEAR
+reportsYear <- 
+  UFO_and_Weather %>% group_by(year) %>% 
+  summarize(count=n());
+ggplot(sightingsYear, aes(x=year, y=count))  + 
+  geom_smooth(method="lm") +
+  labs(x = "Year", y = "red= sightings", 
+       title="UFO sightings / UFO reports by year", 
+       subtitle = "Sightings during the day")
+```
+
+
+#which states have the most findings?
+```{r}
+# SIGHTINGS IN UNITED STATES
+ggplot(UFO_and_Weather, aes(x=reorder(state, state, FUN=length), fill=state)) + 
+  stat_count() +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle=45, size=9, hjust=1)) + 
+  labs(x = "State", y = "Number of sightings", 
+       title="UFO sightings in United States", 
+       subtitle = "Sightings by state")
+```
+
+
+To sum up, your findings demonstrate that the United States, namely the state of California, has the highest number of sightings. However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
 
 
 
