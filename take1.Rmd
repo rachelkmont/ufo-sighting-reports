@@ -66,12 +66,63 @@ str(UFO_and_Weather)
 
 #1 Are UFO sightings more prevalent during certain months of the year?
 ```{r}
-ggplot(UFO_and_Weather, aes(x=Month))+
+ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
   coord_flip()
 
 #July has the most 
 ```
+
+We can see that July has the most by quite a good margin. When we examine year by year, for 4/5 years July has either the most or the 2nd most sightings. This has me think that we should plot the number of sightings per each day in July. Maybe this is because of the 4th of july - a lot of fireworks and air shows happening? Because its summer more people are out and about and looking at the sky??
+
+```{r}
+#let's see if this pattern of mostly being in the fall is a yearly pattern!
+
+
+weather_2019 <- UFO_and_Weather %>%
+    filter(year == 2019)
+#plotting
+ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by month for 2019", x="month", y="count")+
+  coord_flip()
+
+
+weather_2018 <- UFO_and_Weather %>%
+    filter(year == 2018)
+#plotting
+ggplot(weather_2018, aes(x=reorder(Month, Month, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by month for 2018", x="month", y="count")+
+  coord_flip()
+
+weather_2017 <- UFO_and_Weather %>%
+    filter(year == 2017)
+#plotting
+ggplot(weather_2017, aes(x=reorder(Month, Month, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by month for 2017", x="month", y="count")+
+  coord_flip()
+
+weather_2016 <- UFO_and_Weather %>%
+    filter(year == 2016)
+#plotting
+ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by month for 2016", x="month", y="count")+
+  coord_flip()
+
+weather_2015 <- UFO_and_Weather %>%
+    filter(year == 2015)
+#plotting
+ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by month for 2015", x="month", y="count")+
+  coord_flip()
+
+```
+
+
 
 
 # 1.2 Is there a most popular season for UFO sightings?
