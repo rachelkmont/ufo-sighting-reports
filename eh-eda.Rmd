@@ -1,0 +1,165 @@
+---
+title: "Population, Shapes, Phenomena"
+author: "Edmund Hui, Rio Jia, Rachel Montgomery, Yuning Wu"
+date: "2022-11-02"
+output: pdf_document
+---
+
+# Observations
+
+- Why are there duplicate observations in the data?
+
+# Dependencies & Read in Data
+
+```{r}
+#install.packages("tidyverse")
+#install.packages("stringr")
+#install.packages("usmap")
+library(tidyverse)
+library(stringr)
+library(usmap)
+```
+
+```{r}
+df <- read_csv("data/UFO_and_Weather.csv")
+df
+```
+# Question 1: Do UFO sightings happen in more densely populated areas?
+
+We would have to add in some sort of population/census data, but could be interesting to look into
+
+```{r}
+citypop <- read_csv("data/populations_by_city.csv")
+
+# Filter only the municipalities
+citypop <- citypop %>% filter(TYPE %in% c("city", "town", "village")) 
+citypop
+```
+
+```{r}
+df <- df %>% 
+  left_join(citypop, by = c("city"="SHORTNAME", "state"="STSHORT")) %>% 
+  rename(population_2021 = POPESTIMATE2021, geo_class=TYPE)
+
+df 
+```
+
+## Group by municipalities (administrative division)
+
+```{r}
+muni <- df %>% drop_na(geo_class) %>% group_by(geo_class) %>% summarise(count=n()) 
+muni %>% ggplot(aes(x=geo_class, y=count)) + geom_col() + 
+  theme_minimal() + 
+  labs(title="Number of UFO Sightings by Administrative Type") + 
+  xlab("Administrative Division") + 
+  ylab("Number of Sightings")
+```
+## Group By Population
+
+Use case_when to split population into even & logical levels
+
+```{r}
+#mean(citypop$POPESTIMATE2021)
+#mean(df$population_2021, na.rm=TRUE)
+```
+
+## UFO Reports Per Capita / Per State 
+
+```{r}
+states <- read_csv("data/statepop.csv", col_names=FALSE)
+states <- states %>% select(X1, X4)
+names(states) <- c("state", "population_2021")
+states$state <- substr(states$state, 2, 100)
+states$state <- state.abb[match(states$state,state.name)]
+states <- states %>% drop_na()
+```
+```{r}
+sight_counts <- df %>% group_by(state) %>% summarise(count=n())
+states <- states %>% left_join(sight_counts, by="state") %>% mutate(obs_100k = (count/population_2021)*100000)
+```
+
+```{r}
+states %>% arrange(obs_100k)
+```
+
+
+```{r}
+plot_usmap(data = states, values = "obs_100k", color = "black") + 
+  scale_fill_continuous( low = "white", high = "red", name = "Population (2015)", label = scales::comma) + 
+  theme(legend.position = "right") + 
+  labs(title="UFO Sightings Per 100K Population by State", subtitle="Montana has the highest sightings per capita with 20.19 sightings per 100k Population")
+```
+
+
+# Question 2: What are the most common UFO descriptions?
+
+## General Shape Analysis
+
+```{r}
+df %>% drop_na(shape) %>% 
+  ggplot() + 
+  geom_bar(aes(x = reorder(shape, shape, function(x)-length(x)))) +  
+  scale_x_discrete(guide = guide_axis(angle = 90)) + 
+  theme_minimal()
+```
+
+## Which Shapes are Most Common in Each State?
+
+```{r}
+df %>% 
+  group_by(state, shape) %>% 
+  summarise(count=n()) %>% 
+  group_by(state) %>% 
+  top_n(1, count)
+```
+
+
+# Question 3: Do certain cultural phenomena influence UFO sightings?
+
+--- We can add in cultural data like # of sci fi movies released in a year and see if there is a correlation, if a war is happening, etc
+
+## 3.1 Investigate the relationships between google trends data and UFO sightings
+
+```{r}
+# Read in google trend data
+trends <- read_csv("data/multiTimeline.csv", skip=1)
+
+# Rename columns 
+trends <- trends %>% rename(month=Month,ufo=`ufo: (United States)`, alien=`alien: (United States)`)
+
+# Take only the years we need
+trends <- trends %>% filter(substr(month, 1,4) %in% c("2015","2016","2017","2018","2019"))
+
+# Count occurances each month 
+df_counts <- df %>% group_by(year, month) %>% summarise(count=n()) 
+
+# Add counts to the trends dataframe
+trends$count <- df_counts$count
+```
+
+```{r}
+# Min-Max scale as we are only interested in relative movements
+trends$ufo_scaled <- (trends$ufo-min(trends$ufo))/(max(trends$ufo)-min(trends$ufo))
+trends$alien_scaled <- (trends$alien-min(trends$alien))/(max(trends$alien)-min(trends$alien))
+trends$count_scaled <- (trends$count-min(trends$count))/(max(trends$count)-min(trends$count))
+```
+
+```{r}
+trends %>% ggplot(aes(x=month, y=ufo_scaled, group=1)) + 
+  geom_line(aes(colour="\"UFO\" Search Query")) + 
+  geom_line(aes(y=alien_scaled, colour="\"Alien\" Search Query")) + 
+  geom_line(aes(y=count_scaled, colour="UFO Sightings")) + 
+  labs(x = "Date (Year-Month)",
+       y = "Scaled Observation Frequncy",
+       color = "Legend") + 
+  scale_colour_manual("", 
+                      breaks = c("\"UFO\" Search Query", "\"Alien\" Search Query", "UFO Sightings"),
+                      values = c("red", "blue", "black")) + 
+  labs(title="UFO Sightings Relative to Related Search Queries") +
+  scale_x_discrete(guide = guide_axis(angle = 90)) + theme_minimal()
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+```
+
+
+
+
