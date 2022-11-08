@@ -1,0 +1,115 @@
+---
+title: "Maps"
+author: "Yuning Wu"
+date: "11/3/2022"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+```
+
+```{r}
+ufo <- read_csv("UFO_and_Weather.csv")
+```
+
+```{r}
+ufo[duplicated(ufo) | duplicated(ufo, fromLast=TRUE), ]
+```
+
+
+```{r}
+ufo1 <- ufo %>% 
+  group_by(state) %>% 
+  summarize(count = n())
+```
+
+```{r}
+l <- list(color = toRGB("white"), width = 2)
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+fig <- plot_geo(ufo1, locationmode = 'USA-states')
+fig <- fig %>% add_trace(
+    z = ~count, text = ~count, locations = ~state,
+    color = ~count, colors = 'Purples'
+  )
+fig <- fig %>% colorbar(title = "counts")
+fig <- fig %>% layout(
+    title = 'UFO sightings in the US from 2015-2019',
+    geo = g
+  )
+
+fig
+```
+
+
+
+https://www.kaggle.com/datasets/peretzcohen/2019-census-us-population-data-by-state
+
+```{r}
+us_pop <- read_csv("2019_Census_US_Population_Data_By_State_Lat_Long.csv")
+state <- data.frame(state.abb, state.name)
+
+us_pop1 <- us_pop %>% 
+  left_join(state, by = c("STATE" = "state.name"))
+
+us_pop1$state.abb[us_pop1["STATE"] == "District of Columbia"] = "DC"
+us_pop1
+```
+
+
+##### Only keep US states!!!
+
+```{r}
+ufo2 <- ufo1 %>% 
+  inner_join(us_pop1, by = c("state" = "state.abb")) %>% 
+  mutate(proportion = count / POPESTIMATE2019) %>% 
+  select(state, proportion)
+
+```
+
+```{r}
+l <- list(color = toRGB("white"), width = 2)
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+fig <- plot_geo(ufo2, locationmode = 'USA-states')
+fig <- fig %>% add_trace(
+    z = ~proportion, locations = ~state,
+    color = ~proportion, colors = 'Reds'
+  )
+fig <- fig %>% colorbar(title = "proportions")
+fig <- fig %>% layout(
+    title = 'UFO sightings per population in the US from 2015-2019',
+    geo = g
+  )
+
+fig
+```
+
+
+
+```{r}
+ufo %>% group_by(city, state) %>% 
+  summarise(n = n())
+```
+
+
+
+
+
+
+
+
+
+
+
+
