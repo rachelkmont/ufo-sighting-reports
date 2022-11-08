@@ -2,7 +2,9 @@
 title: "group_proj"
 author: "Rachel Montgomery"
 date: "2022-11-02"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -256,7 +258,7 @@ Now doing the “chi-square” test to see if there’s a link between the time 
 
 The Chi-Square independence test is performed, assuming that: Each sample observation is independent. Each case contributes to at least one entry.
 ```{r}
-chisq.test(UFO_and_Weather, hour, simulate.p.value=T);
+#chisq.test(UFO_and_Weather, hour, simulate.p.value=T);
 ```
 
 this does not work :(
