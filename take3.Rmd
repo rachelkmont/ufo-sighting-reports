@@ -1,0 +1,56 @@
+---
+title: "take3"
+author: "Rachel Montgomery"
+date: "2022-11-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+library(tidytext)
+library(textdata)
+```
+
+```{r}
+library(readr)
+UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
+    col_types = cols(month = col_character(), 
+        hour = col_time(format = "%H")))
+
+View(UFO_and_Weather)
+
+```
+
+#new eda goals
+
+-   More text analysis (july 4th w and w/o)
+
+-   General things with and without july 4th
+
+-   Maybe the timing on july 4th?
+
+-   **For text analysis remove the node rows**
+
+-   See what day is most popular day of the week
+
+
+## Text analysis
+Make sure to remove the node rows on text anaylsis take 2 (:
+
+
+## Investigate with and w/o July 4th outlier
+
+## Look at timing of sightings on July 4th?
+
+## See what day is most popular day of the week
+
+
+
