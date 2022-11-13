@@ -2,7 +2,8 @@
 title: "take3"
 author: "Rachel Montgomery"
 date: "2022-11-10"
-output: html_document
+output:
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +18,12 @@ library(ggplot2)
 
 library(tidytext)
 library(textdata)
+library(tm)
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+library(syuzhet)
+
 ```
 
 ```{r}
@@ -43,14 +50,224 @@ View(UFO_and_Weather)
 
 
 ## Text analysis
-Make sure to remove the node rows on text anaylsis take 2 (:
+
+
+### using what we did before for text analysis 
+
+First, lets make a word frequency
+
+```{r}
+#Step 1:tokenize corpus
+
+words <- UFO_and_Weather %>%
+  select(text) %>%
+  unnest_tokens(word, text)
+
+head(words)
+
+#Now, we'll generate a count of the words, sort by the number of times the word occurs, and then plot the top 15 words in a bar plot
+
+#x= season and poem=line
+
+words %>% count(word, sort = T) %>% slice(1:15) %>%
+  ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) +
+  geom_bar(stat = 'identity') +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  xlab("Words") +
+  ggtitle(" Word Count (with stop words)")
+
+#as we can see, the most popular words (at the moment) are stop words. This isn't very helpful for our analysis, so we'll take them out
+```
+
+
+now lets create stop words
+```{r}
+#Step 2: Using the `TidyText` package, remove stop words and generate a new word count
+ufo_no_stop <- words %>% 
+  anti_join(stop_words)
+
+
+ufo_no_stop %>%
+  count(word, sort = T) %>% 
+  slice(1:15) %>% 
+  ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) + 
+  geom_bar(stat = "identity") + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+  xlab("Words") +
+  ggtitle("Word Frequency without Stop Words") 
+```
+
+We can see the most common words are those typical for a UFO report. Light, sky, object, moving, and looked all make sense here.
+
+
+### making a word cloud
+
+First making a term-document matrix. 
+Following tutorial from here: http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know
+
+Document matrix is a table containing the frequency of the words. Column names are words and row names are documents.
+
+```{r}
+#Build a term-document matrix
+
+dtm <- TermDocumentMatrix(ufo_no_stop)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+```
+
+```{r}
+#generate word cloud
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"),  scale=c(3.5,0.25))
+
+#was getting error about word cloud cropping certain words, added the argument scale=c(3.5,0.25)
+
+#playing with wordcloud2
+wordcloud2(data=d, size = 0.5, shape = 'star')
+wordcloud2(data=d, size=1.6, color='random-dark')
+
+wordcloud2(d, color = "random-light", backgroundColor = "grey")
+
+#making the word ufo with the word cloud
+letterCloud(d, word = "UFO", wordSize = 2)
+
+
+#ok lets try with the shape of a ufo now
+
+# figPath = system.file("ufo.png",package = "wordcloud2")
+# 
+# wordcloud2(d, figPath = figPath, size = 1.5,color = "skyblue")
+# 
+# 
+# figPath = system.file("t.png",package = "wordcloud2")
+# wordcloud2(d, figPath = figPath, size = 1.5,color = "red")
+# 
+# 
+# # Change the shape using your image
+# wordcloud2(d, figPath = "t.png", size = 1.5, color = "red", backgroundColor="gray")
+
+
+```
+
+
+```{r}
+#findFreqTerms(dtm, lowfreq = 4)
+
+findAssocs(dtm, terms = "lights", corlimit = 0.3)
+
+#frequency table of words
+head(d, 10)
+```
+This gives us a quantitative measure of how much these words appear in the UFO summaries.
+
+
+### text analysis w/o nodes
+
+```{r}
+
+#making a df without the node observations
+
+df2 <- UFO_and_Weather %>% filter(!grepl("MADAR", text))
+
+words <- df2 %>%
+  select(text) %>%
+  unnest_tokens(word, text)
+
+head(words)
+
+#stop words
+ufo_no_stop2 <- words %>% 
+  anti_join(stop_words)
+
+#Build a term-document matrix
+
+dtm1 <- TermDocumentMatrix(ufo_no_stop2)
+m1 <- as.matrix(dtm1)
+v1 <- sort(rowSums(m1),decreasing=TRUE)
+d1 <- data.frame(word = names(v1),freq=v1)
+head(d1, 10)
+
+
+#generate word cloud
+set.seed(123)
+wordcloud(words = d1$word, freq = d1$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"),  scale=c(3.5,0.25))
+
+#playing with wordcloud2
+wordcloud2(data=d1, size = 0.5, shape = 'star')
+wordcloud2(data=d1, size=1.6, color='random-dark')
+
+wordcloud2(d1, color = "random-light", backgroundColor = "grey")
+```
+
+
 
 
 ## Investigate with and w/o July 4th outlier
+```{r}
+#going to take out july 4th from all years to investigate how that influences the data set
+UFO_no_july4 <- UFO_and_Weather
+
+#first making date_time variable into just month and day
+UFO_no_july4$date <- format(as.Date(UFO_no_july4$date_time), "%m-%d")
+
+#now taking out july 4th
+#UFO_no_july4 %>% filter(date != "07-04")
+
+UFO_no_july4 %>% filter(!grepl("07-04", date))
+```
+
+ok lets see how that worked
+```{r}
+ggplot(UFO_no_july4, aes(x=reorder(month, month, FUN=length)))+
+  geom_bar()+
+  coord_flip()
+```
+
+
+```{r}
+just_july1 <- UFO_no_july4 %>%
+  filter(month== 7)
+```
+
+
+```{r}
+ggplot(just_july1, aes(x=reorder(day, day, FUN=length)))+
+  geom_bar()+
+  coord_flip()
+
+```
+
 
 ## Look at timing of sightings on July 4th?
 
+
 ## See what day is most popular day of the week
+
+to see the most popular day of the week, we need to manipulate the original date time variable
+
+```{r}
+
+UFO_and_Weather$weekday <- weekdays(UFO_and_Weather$date_time)
+```
+
+Now, let's plot by day of the week
+```{r}
+#plotting
+ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
+  geom_bar()+
+  labs(title="Sightings by day of week", x="day of week", y="count")+
+  coord_flip()
+```
+
+Weekends have the most sightings, which is interesting.
 
 
 
