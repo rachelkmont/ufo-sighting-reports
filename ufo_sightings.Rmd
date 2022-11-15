@@ -1,0 +1,153 @@
+---
+title: "UFO Sightings"
+author: "Edmund Hui, Rio Jia, Rachel Montgomery, Yuning Wu"
+date: "10/28/2022"
+output: html_document
+---
+
+# Libraries
+
+```{r}
+# TODO: remove unused libraries
+library(tidyverse)
+library(VIM)
+library(naniar)
+library(gridExtra)
+```
+
+
+# Load Data
+
+```{r}
+ufo_uncleaned <- read_csv("nuforc_reports.csv")
+```
+
+
+# Data Cleaning and Validation
+
+- Visualize missingness:
+
+```{r}
+gg_miss_var(ufo_uncleaned)
+```
+- Investigate the top most missingness:
+
+##### Date_time and posted
+
+```{r}
+# sort by date_time
+matrixplot(ufo_uncleaned, sortby = 4)
+
+sum(is.na(ufo_uncleaned$date_time))
+sum(is.na(ufo_uncleaned$posted))
+
+ufo_uncleaned %>% 
+  filter(is.na(date_time)) %>% 
+  select(posted) %>% 
+  summarise(num_na_posted = sum(is.na(posted)))
+```
+
+- Missingness in date_time and posted is highly correlated. In fact, there are 1187 missing values in each and they are from the same observations.
+
+
+##### state and city
+
+```{r}
+# sort by state
+matrixplot(ufo_uncleaned, sortby = 3)
+
+# sort by city
+matrixplot(ufo_uncleaned, sortby = 2)
+
+ufo_uncleaned %>% 
+  filter(is.na(state)) %>% 
+  select(city)
+```
+
+- Missingness in state is only correlated with missingness in city_latitude and city_longitude which is expected.  
+- Cities that are missing state data are mostly foreign cities (the scope of our project is within the US, so we should remove these).
+
+
+```{r}
+sum(is.na(ufo_uncleaned$city_latitude))
+sum(is.na(ufo_uncleaned$city_longitude))
+
+ufo_uncleaned_1 <- ufo_uncleaned %>% 
+  arrange(date_time)
+
+matrixplot(ufo_uncleaned_1)
+```
+
+- There are many NAs in longitude and latitude, however they are always missing together.  
+- The missingness in these 2 variables doesn't seem to correlated to any other variable.  
+- Clear to drop, but since there are too many, we decided to keep two versions one with no NA values (ufo), one with NA values in city_longitude and city_latitude (ufo_extended).
+
+
+##### duration
+
+```{r}
+matrixplot(ufo_uncleaned, sortby = 6)
+```
+
+- No correlation, clear to drop.
+
+##### shape
+
+```{r}
+matrixplot(ufo_uncleaned, sortby = 5)
+```
+
+- No correlation, clear to drop.
+
+### Dropping all NAs from the df to create "ufo"
+
+```{r}
+ufo <- na.omit(ufo_uncleaned)
+sum(is.na(ufo))
+```
+
+### Dropping all NAs except the ones from city_longitude and city_latitude to create "ufo_extended"
+
+```{r}
+ufo_extended <- ufo_uncleaned %>% 
+  filter(!is.na(state)) %>% 
+  filter(!is.na(city)) %>% 
+  filter(!is.na(duration)) %>% 
+  filter(!is.na(shape)) %>% 
+  filter(!is.na(date_time)) %>% 
+  filter(!is.na(posted)) %>% 
+  filter(!is.na(text)) %>% 
+  filter(!is.na(stats)) %>% 
+  filter(!is.na(summary))
+```
+
+```{r}
+sum(is.na(ufo_extended))
+gg_miss_var(ufo_extended)
+```
+
+
+```{r}
+ufo %>% 
+  chain_start %>% 
+  # check if ufo contains only valid US states
+  assert(in_set(state.abb), state) %>%
+  # check if latitude is valid
+  assert(within_bounds(-90, 90), city_latitude) %>% 
+  # check if longitude is valid
+  assert(within_bounds(-180, 180), city_longitude) %>% 
+  chain_end(error_fun = warn_report)
+```
+
+- TODO: we need to clean up `date_time` and `duration` so that we can do more validations on them.
+
+##### Remove the rows with non-US states
+
+```{r}
+ufo <- ufo %>% 
+  filter(state %in% state.abb)
+
+ufo_extended <- ufo_extended %>% 
+  filter(state %in% state.abb)
+```
+

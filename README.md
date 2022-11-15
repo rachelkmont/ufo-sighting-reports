@@ -45,6 +45,10 @@ Wed 10/26–Wed 11/02:
 Wed 11/02–Wed 11/09:
 * Perform actual analyses and figure generation (Each person create 1 basic & we all work together on the more advanced EDA figure)
 
+Tues 11/03 - Friday 11/11:
+* Meet via Zoom to discuss findings
+* Begin report 
+
 Wed 11/09–Wed 11/16:
 * Write the report
 

@@ -1,0 +1,76 @@
+---
+title: "UFO Sightings Validation and Cleaning"
+author: "Edmund Hui, Rio Jia, Rachel Montgomery, Yuning Wu"
+date: "10/31/2022"
+output: github_document
+---
+
+# Libraries
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ufo_uncleaned <- read_csv("nuforc_reports.csv")
+```
+
+Remove the following variables:
+- duration (too hard)
+- summary (redundant with "text" because it's just the first sentence of "text")
+- stats (redundant with other variables)
+- posted (prob not going to do anything with this, date_time is more useful for pinpointing the occurrence of the sighting)
+- report_link (prob not going to use it)
+
+We are keeping the following variables:
+- city
+- state
+- date_time
+- shape
+- text
+- city_latitude
+- city_longitude 
+
+We are removing NAs for these variables besides "shape" and "text." Since these are more qualitative features of the sighting, we can still analyze other quantitative features without them, and it's better to have more data for those quantitative feature analyses. We also determined that all these variables are MCAR so we can feel free to drop. 
+
+```{r}
+ufo_nas_cleaned <- ufo_uncleaned %>% 
+  select(-c(summary, duration, stats, report_link, posted)) %>% 
+  filter(!is.na(state)) %>% 
+  filter(!is.na(city)) %>% 
+  filter(!is.na(date_time)) %>% 
+  filter(!is.na(city_latitude)) %>% 
+  filter(!is.na(city_longitude))
+
+ufo_nas_cleaned
+```
+```{r}
+ufo_date <- ufo_nas_cleaned
+ufo_date$year <- format(ufo_date$date_time, format = "%Y")
+ufo_date$month <- format(ufo_date$date_time, format = "%m")
+ufo_date$day <- format(ufo_date$date_time, format = "%d")
+ufo_date$hour <- format(ufo_date$date_time, format = "%H")
+ufo_date
+```
+```{r}
+ufo_date$year = as.numeric(as.character(ufo_date$year)) 
+ufo_date$month = as.numeric(as.character(ufo_date$month)) 
+ufo_date$day = as.numeric(as.character(ufo_date$day)) 
+ufo_date$hour = as.numeric(as.character(ufo_date$hour)) 
+```
+
+
+```{r}
+ufo_date_remove_early_years <- ufo_date %>% 
+  filter(year > 2014)
+
+ufo_date_remove_early_years
+```
+```{r}
+summary(ufo_date_remove_early_years)
+```
+
+```{r}
+write.csv(ufo_date_remove_early_years, "C:\\Users\\jiax2\\EDAFinal\\Team10_final\\UFO_cleaned.csv", row.names=FALSE)
+```
+
