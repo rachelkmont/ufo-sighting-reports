@@ -31,7 +31,7 @@ We are keeping the following variables:
 - city_latitude
 - city_longitude 
 
-We are removing NAs for these variables besides "shape" and "text." Since these are more qualitative features of the sighting, we can still analyze other quantitative features without them, and it's better to have more data for those quantitative feature analyses. We also determined that all these variables are MCAR so we can feel free to drop. 
+We are removing NAs for these variables besides "shape" and "text." Since these are more qualitative features of the sighting, we can still analyze other quantitative features without them, and it's better to have more data for those quantitative feature analyses. We also determined that all these variables are MCAR so we can feel free to drop them. Furthermore, observations that are missing city, state, date_time, city_latitude, and city_longitude are arguably unreliable as one should at a bare minimum, know where and when they saw a UFO. Therefore, dropping observations that have missingness in these variables is justified. "Shape" and "text," on the other hand, are a bit more subjective, so we are okay with keeping observations that are missing in these two fields. 
 
 ```{r}
 ufo_nas_cleaned <- ufo_uncleaned %>% 
