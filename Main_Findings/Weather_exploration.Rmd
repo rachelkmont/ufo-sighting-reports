@@ -1,0 +1,145 @@
+---
+title: "Weather Exploration"
+author: "Rio"
+---
+```{r}
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(scales) 
+```
+
+```{r}
+ufo_weather <- read_csv("UFO_and_Weather.csv")
+```
+Remove non-US observations
+
+```{r}
+ufo_weather <- subset(ufo_weather, !(state %in% c("BC", "QC", "ON", "NS", "AB", "MB", "SK", "YT", "NL")))
+```
+
+creates new variable 'weather_na_count' that counts the number of NAs from the weather variables 
+
+```{r}
+ufo_count_nas_weather <- ufo_weather %>%  
+  mutate(weather_na_count = rowSums(is.na(select(., c(temperature, relative_humidity, precipitation, snow, wind_direction, wind_speed)))))
+
+ufo_count_nas_weather
+```
+remove the observations that are completely missing all weather data (all 6 weather variables)
+5,035 observations removed
+
+```{r}
+ufo_weather <- ufo_count_nas_weather %>% 
+  filter(weather_na_count < 6)
+
+ufo_weather
+```
+Notice that all observations contain NA for 'snow' 
+Temperature appears to be the most complete variable with only 65 NAs compared to way more NAs for the other weather variables 
+
+```{r}
+summary(ufo_weather) 
+```
+Drop NAs for temperature to further analyze temperature 
+
+```{r}
+ufo_weather_dropna_tmp <- ufo_weather %>% 
+  drop_na(temperature)
+```
+
+
+Temperature distribution from UFO sightings seems to be slightly negatively skewed
+
+```{r}
+ggplot(ufo_weather_dropna_tmp , aes(x = temperature)) +
+      geom_histogram(aes(y = ..density..), colour = "black", fill = "white") +
+      geom_density(alpha = .2, fill="#FF6655") 
+```
+The temperature during UFO sightings seems to align with seasonal patterns across the years. 
+
+```{r}
+ggplot(data = ufo_weather_dropna_tmp, aes(x=date_time, y=temperature)) +
+  geom_point(na.rm=TRUE, color="darkolivegreen4", size=1, pch=20) +
+  scale_y_continuous(breaks = seq(-50, 60, 10), limits=c(-30, 50)) +
+  scale_x_datetime(breaks=date_breaks("1 year"), labels = date_format("%b %Y")) + 
+  ggtitle("Air Temperature at Reported UFO Sighting Sites 2015-2019") +
+  xlab("Date") + 
+  ylab("Temperature (Celsius)") +
+  theme_minimal()
+
+ggsave("Air_Tmp_at_reported_UFO_Sighting_sites_2015_2019.jpg", bg="white")
+```
+
+find the average temperature during ufo sightings for each state 
+
+```{r}
+ufo_temp_by_state <- ufo_weather_dropna_tmp %>% 
+  group_by(state) %>% 
+  summarise(avg_tmp = mean(temperature))
+
+ufo_temp_by_state
+```
+The average temperature during UFO sightings for each state plotted on a US map.
+
+The average temperature during UFO sightings seems to align with state temperature trends where southern US is generally warmer than northern US. 
+```{r}
+l <- list(color = toRGB("white"), width = 2)
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+fig <- plot_geo(ufo_temp_by_state, locationmode = 'USA-states')
+fig <- fig %>% add_trace(
+    z = ~avg_tmp, text = ~avg_tmp, locations = ~state,
+    color = ~avg_tmp, colors = 'Purples'
+  )
+fig <- fig %>% colorbar(title = "Temperature")
+fig <- fig %>% layout(
+    title = 'Average Temperature of UFO Sightings in the US from 2015-2019',
+    geo = g
+  )
+fig
+```
+
+A fairly uniform distribution of the wind direction during UFO sightings. 
+
+```{r}
+ufo_weather_dropna_wd <- ufo_weather %>% 
+  drop_na(wind_direction)
+
+ggplot(ufo_weather_dropna_wd , aes(x = wind_direction)) +
+      geom_histogram(aes(y = ..density..), colour = "black", fill = "white") +
+      geom_density(alpha = .2, fill="#FF6655") 
+```
+A positively skewed wind speed distribution for UFO sightings. The vast majority of the time, the wind speed is low. 
+
+```{r}
+ufo_weather_dropna_ws <- ufo_weather %>% 
+  drop_na(wind_speed)
+
+ggplot(ufo_weather_dropna_ws , aes(x = wind_speed)) +
+      geom_histogram(bins = 30, aes(y = ..density..), colour = "black", fill = "white") 
+```
+There is almost never any precipitation during UFO sightings. 
+
+```{r}
+ufo_weather_dropna_precip <- ufo_weather %>% 
+  drop_na(precipitation)
+
+ggplot(ufo_weather_dropna_precip , aes(x = precipitation)) +
+      geom_histogram(bins = 30, aes(y = ..density..), colour = "black", fill = "white")
+```
+Almost a normal distribution of relative humidity during UFO sightings. 
+
+```{r}
+ufo_weather_dropna_rh <- ufo_weather %>% 
+  drop_na(relative_humidity)
+
+ggplot(ufo_weather_dropna_rh , aes(x = relative_humidity)) +
+      geom_histogram(aes(y = ..density..), colour = "black", fill = "white") +
+      geom_density(alpha = .2, fill="#FF6655") 
+```
+
