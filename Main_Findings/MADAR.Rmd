@@ -36,6 +36,15 @@ ufo_df_madar %>%
   summarise(count=n())
 ```
 
+the number of unique MADAR nodes (some nodes report multiple times)
+
+```{r}
+ufo_df_madar %>% 
+  filter(contains_madar == TRUE) %>% 
+  summarise(num_distinct_nodes = n_distinct(text))
+```
+
+
 Finds the number of MADAR node reports in each state.
 Indiana leads with 99 reports followed by CT, Fl, VA, NH with ~ half of that 
 
@@ -134,4 +143,44 @@ fig <- fig %>% layout(
   )
 fig
 ```
+Indiana has the most nodes located in the state. 
 
+```{r}
+ufo_madar_distinct_nodes_by_state <- ufo_df_madar %>% 
+  filter(contains_madar == TRUE) %>% 
+  group_by(state) %>% 
+  summarise(num_distinct_nodes = n_distinct(text)) %>% 
+  arrange(desc(num_distinct_nodes))
+
+ufo_madar_distinct_nodes_by_state
+```
+
+Display both the number of distinct nodes and the number of node reports and percentage of reports from nodes by state
+
+```{r}
+ufo_madar_merge = merge(x = ufo_madar_distinct_nodes_by_state, y = ufo_madar_and_sightings, by = "state")
+ufo_madar_merge %>% 
+  arrange(desc(num_distinct_nodes))
+```
+Correlation of the number of distinct nodes to the number of reports from nodes 
+
+```{r}
+cor(ufo_madar_merge$num_distinct_nodes, ufo_madar_merge$node_report_count, use="complete.obs")
+```
+
+Correlation of the number of distinct nodes to the percentage of reports from nodes 
+
+```{r}
+cor(ufo_madar_merge$num_distinct_nodes, ufo_madar_merge$percent_node, use="complete.obs")
+```
+Plot of the correlation between number of distinct nodes and number of node reports
+
+```{r}
+ggplot(ufo_madar_merge, aes(x = num_distinct_nodes, y = node_report_count)) +
+  geom_point() +
+  geom_smooth(method = 'lm', formula = y~x) + 
+  labs(title="Number of Node Reports vs Number of Distinct Nodes \n(Correlation = .86)", y="# Node Reports", x="# Distinct Nodes") +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust=0.5)) +geom_text(x=750, y=350, label="Correlation=.68", size = 4)
+ggsave("Number_Node_Reports_VS_Num_Distinct_Nodes.jpg", bg="white")
+```
