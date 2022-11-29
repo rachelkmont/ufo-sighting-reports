@@ -1,0 +1,205 @@
+---
+title: "Findings for text analysis and frequency of sightings"
+author: "Rachel Montgomery"
+date: "2022-11-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Findings in UFO Project
+
+This rmd file encompasses the exploratory data analysis regarding the following areas of interest:
+
+-   Frequency of sightings
+
+    -   Exploring if sightings are more prevalent during certain months of the year
+
+    -   If seasons impact the frequency of sightings
+
+    -   Exploring which times of day are the most popular for sightings
+
+        -   Investigating if reports are less reliable in these times (e.g. Friday/Saturday night, low vision)
+
+    -   Which days of the week are the most common for sightings
+
+    -   Which states have the most sightings
+
+-   Text analysis
+
+    -   In reports, which words are the most common
+
+    -   Creating word clouds generated from reports
+
+    -   Sentiment Analysis 
+
+## Set up: loading in data and libraries
+
+Loading in needed libraries:
+
+```{r}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(tidytext)
+library(textdata)
+library(tm)
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+library(syuzhet)
+```
+
+Reading in data:
+
+```{r}
+library(readr)
+UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
+    col_types = cols(month = col_character(), 
+        hour = col_time(format = "%H")))
+
+View(UFO_and_Weather)
+```
+
+## Data Analysis
+
+### Frequency of Sightings
+
+#### Which season has the most sightings? Has this changed over the years?
+
+#### Which months have the highest count of sightings? Has this changed over the years?
+
+##### Fourth of July: Outlier
+
+#### Which times of the day are the most popular for sightings?
+
+#### Which states have the most sightings?
+
+### Text Analysis
+
+#### Word Frequency
+```{r}
+#Step 1: Tokenize corpus
+
+words <- UFO_and_Weather %>%
+  select(text) %>%
+  unnest_tokens(word, text)
+
+head(words)
+
+#Now, we'll generate a count of the words, sort by the number of times the word occurs, and then plot the top 15 words in a bar plot
+
+words %>% count(word, sort = T) %>% slice(1:15) %>%
+  ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) +
+  geom_bar(stat = 'identity') +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  xlab("Words") +
+  ggtitle(" Word Count (with stop words)")
+```
+As we can see, the most popular words (at the moment) are words that are commonly used in the English language, regardless of context. These are called stop words. Examples of stop words in English are “a”, “the”, “is”, “are” and etc.
+
+In the next step, we'll remove the stop words so we can focus on the important words instead.
+
+```{r}
+#Step 2: Using the `TidyText` package, remove stop words and generate a new word count
+ufo_no_stop <- words %>% 
+  anti_join(stop_words)
+
+
+ufo_no_stop %>%
+  count(word, sort = T) %>% 
+  slice(1:15) %>% 
+  ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) + 
+  geom_bar(stat = "identity") + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+  xlab("Words") +
+  ggtitle("Word Frequency without Stop Words") 
+```
+
+We can see the most common words are those typical for a UFO report. Light, sky, object, moving, and looked all make sense here.
+
+
+#### Word Clouds
+A word cloud is a collection, or cluster, of words depicted in different sizes. The bigger and bolder the word appears, the more often it’s mentioned within a given text and the more important it is.
+
+
+First, we'll build a document matrix, which is a table containing the frequency of the words. Column names are words and row names are documents.
+```{r}
+#Creating a term-document matrix
+
+tdm <- TermDocumentMatrix(ufo_no_stop)
+m <- as.matrix(tdm)
+v <- sort(rowSums(m),decreasing=TRUE)
+term_dox_matrix <- data.frame(word = names(v),freq=v)
+head(term_dox_matrix, 10)
+```
+We can see that the most common words are light, lights, sky, object, and bright. This follows what we plotted earlier.
+
+
+Now, we can create a word cloud.
+```{r}
+#generate word cloud
+set.seed(1234)
+wordcloud(words = term_dox_matrix $word, freq = term_dox_matrix $freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"),  scale=c(3.5,0.25))
+
+#In order to have words not cropped out from spacing issues, changed scale 
+```
+
+```{r}
+#We can also create word clouds in specific shapes
+
+wordcloud2(data=term_dox_matrix , size = 0.4, shape = 'star')
+
+
+wordcloud2(term_dox_matrix , color = "random-light", backgroundColor = "grey")
+
+```
+
+
+#### Sentiment Analysis 
+
+Let's explore sentiment analysis.
+
+We'll be using the Syuzhet package for generating sentiment scores, which has four sentiment dictionaries and offers a method for accessing the sentiment extraction tool developed in the NLP group at Stanford.
+
+```{r}
+emotions <- get_nrc_sentiment(ufo_no_stop$word)
+head(emotions)
+```
+
+```{r}
+barplot(colSums(emotions),
+        las = 2,
+        col = rainbow(10),
+        ylab = 'Count',
+        main = 'Sentiment Scores')
+```
+
+
+```{r}
+sentiments <- get_sentiments("nrc")
+
+df_sentiments1 <- ufo_no_stop %>% left_join(sentiments)
+
+df_sentiments_filtered1 <- df_sentiments1 %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarize(n = n())
+
+df_sentiments_filtered1 %>% 
+  ggplot(aes(x = reorder(sentiment, n, function(n) -n), y = n)) + 
+  geom_bar(stat = "identity") + 
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+  xlab("Sentiments")
+```
+
+The most common sentiment by a large margin is positive. 
+
