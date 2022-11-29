@@ -22,8 +22,11 @@ This rmd file encompasses the exploratory data analysis regarding the following 
     -   Exploring which times of day are the most popular for sightings
 
         -   Investigating if reports are less reliable in these times (e.g. Friday/Saturday night, low vision)
+        -   If the time of day impacts what shapes of UFOs are seen
 
     -   Which days of the week are the most common for sightings
+
+    -   If the frequency of UFO sightings changed over the years?
 
     -   Which states have the most sightings
 
@@ -33,7 +36,7 @@ This rmd file encompasses the exploratory data analysis regarding the following 
 
     -   Creating word clouds generated from reports
 
-    -   Sentiment Analysis 
+    -   Sentiment Analysis
 
 ## Set up: loading in data and libraries
 
@@ -75,7 +78,6 @@ dim(UFO_and_Weather)
 str(UFO_and_Weather)
 ```
 
-
 ## Data Analysis
 
 ### Frequency of Sightings
@@ -102,8 +104,8 @@ ggplot(UFO_and_Weather, aes(x=season))+
   geom_bar()+
   coord_flip()
 ```
-We can see that the fall months have the most sightings, with summer having the 2nd most.
 
+We can see that the fall months have the most sightings, with summer having the 2nd most.
 
 #### Which months have the highest count of sightings? Has this changed over the years?
 
@@ -126,7 +128,6 @@ UFO_and_Weather <- UFO_and_Weather %>%
     month=="12" ~ "December"))
 ```
 
-
 ```{r}
 ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
@@ -137,6 +138,7 @@ ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
 We can see that July has the most by quite a good margin. When we examine year by year, for 4/5 years July has either the most or the 2nd most sightings. This has me think that we should plot the number of sightings per each day in July. Maybe this is because of the 4th of july - a lot of fireworks and air shows happening? Because its summer more people are out and about and looking at the sky?
 
 Let's investigate if how the popular months vary by the years.
+
 ```{r}
 #let's see if this pattern of mostly being in the fall is a yearly pattern!
 
@@ -183,10 +185,10 @@ ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
   coord_flip()
 ```
 
-
 We can consistently see that July has a large amount of sightings. Let's investigate just the month of July.
 
 For the month of July, which days are the most popular?
+
 ```{r}
 just_july <- UFO_and_Weather %>%
   filter(month== 7)
@@ -196,17 +198,17 @@ ggplot(just_july, aes(x=reorder(day, day, FUN=length)))+
   coord_flip()
 
 ```
-Wow!!! The fourth of july has about 2.5x more than all other days!! Some possible explanations for this are because there are a ton of fireworks going off, which cause light and sound to be in the sky, and could be mistaken for UFOS. Also there are air shows that occur, which could also be reported as UFOS. Because of these festivities, many people are out at night and looking at the sky, so mere exposure effect could be play.
-Additionally, it should be noted that this is a national holiday, and one that is often celebrated with alcohol, which conflicts the reliability of these reports. 
+
+Wow!!! The fourth of july has about 2.5x more than all other days!! Some possible explanations for this are because there are a ton of fireworks going off, which cause light and sound to be in the sky, and could be mistaken for UFOS. Also there are air shows that occur, which could also be reported as UFOS. Because of these festivities, many people are out at night and looking at the sky, so mere exposure effect could be play. Additionally, it should be noted that this is a national holiday, and one that is often celebrated with alcohol, which conflicts the reliability of these reports.
 
 Overall, the 4th of July is an outlier and should be treated as such in following analysis.
-
 
 ##### Fourth of July: Outlier
 
 Let's investigate the popularity of months if we remove the July 4th outlier.
 
 #### Which times of the day are the most popular for sightings?
+
 ```{r}
 #first making time into am and pm hour times
 UFO_and_Weather <- UFO_and_Weather %>%
@@ -225,7 +227,6 @@ UFO_and_Weather <- UFO_and_Weather %>%
     hour >18 ~ "night"))
 ```
 
-
 ```{r}
 ggplot(UFO_and_Weather, aes(x=hour)) + 
   geom_histogram(bins=24, aes(fill=..count..)) +
@@ -236,9 +237,10 @@ ggplot(UFO_and_Weather, aes(x=hour)) +
        subtitle = "Sightings during the day")
 ```
 
-We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm. The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it’s worth noting that there have been reports of UFOs during the day as well.
+We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm. The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it's worth noting that there have been reports of UFOs during the day as well.
 
 ##### Is there a relationship between the UFO shapes and time?
+
 We can look at the relationship between the shapes and the time of day. This may explain why the light shape is the most frequently reported shape.
 
 ```{r}
@@ -254,6 +256,7 @@ ggplot(shapesDaytime, aes(x=hour, y=shape)) +
        title="Correlation between daytime / UFO Shape", 
        subtitle = "Sightings during the day")
 ```
+
 We can see from the plot that the shapes are more prevalent/persistent at night as well. We can see that light appears more frequently at night and in the evening, but less frequently during the day than other common shapes.
 
 #### What days of the week are the most popular for sightings?
@@ -270,10 +273,11 @@ ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
   labs(title="Sightings by day of week", x="day of week", y="count")+
   coord_flip()
 ```
-Weekends have the most sightings, which is interesting.
-Combining this with the fact that most are night, infers that many sightings are during "drinking" or social hours at night. This could hinder the reliability of sightings.
+
+Weekends have the most sightings, which is interesting. Combining this with the fact that most are night, infers that many sightings are during "drinking" or social hours at night. This could hinder the reliability of sightings.
 
 #### Has the frequency of UFO sightings changed over the years?
+
 ```{r}
 #Sightings by year
 sightingsYear <- 
@@ -290,19 +294,29 @@ ggplot(sightingsYear, aes(x=year, y=count))  +
        subtitle = "Sightings during the day")
 ```
 
-
 #### Which states have the most sightings?
+
 ```{r}
+ggplot(UFO_and_Weather, aes(x=reorder(state, state, FUN=length))) + 
+  stat_count() +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle=45, size=9, hjust=1)) + 
+  labs(x = "State", y = "Number of sightings", 
+       title="UFO sightings in United States", 
+       subtitle = "Sightings by state")
 
 ```
 
+The states with the most reports are California, Washington, and Arizona. 
 
+However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
 
-To sum up, your findings demonstrate that the United States, namely the state of California, has the highest number of sightings. However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
 
 ### Text Analysis
+In this section, we will perform text analysis on the text from reports.
 
 #### Word Frequency
+
 ```{r}
 #Step 1: Tokenize corpus
 
@@ -322,7 +336,8 @@ words %>% count(word, sort = T) %>% slice(1:15) %>%
   xlab("Words") +
   ggtitle(" Word Count (with stop words)")
 ```
-As we can see, the most popular words (at the moment) are words that are commonly used in the English language, regardless of context. These are called stop words. Examples of stop words in English are “a”, “the”, “is”, “are” and etc.
+
+As we can see, the most popular words (at the moment) are words that are commonly used in the English language, regardless of context. These are called stop words. Examples of stop words in English are "a", "the", "is", "are" and etc.
 
 In the next step, we'll remove the stop words so we can focus on the important words instead.
 
@@ -345,12 +360,12 @@ ufo_no_stop %>%
 
 We can see the most common words are those typical for a UFO report. Light, sky, object, moving, and looked all make sense here.
 
-
 #### Word Clouds
-A word cloud is a collection, or cluster, of words depicted in different sizes. The bigger and bolder the word appears, the more often it’s mentioned within a given text and the more important it is.
 
+A word cloud is a collection, or cluster, of words depicted in different sizes. The bigger and bolder the word appears, the more often it's mentioned within a given text and the more important it is.
 
 First, we'll build a document matrix, which is a table containing the frequency of the words. Column names are words and row names are documents.
+
 ```{r}
 #Creating a term-document matrix
 
@@ -360,10 +375,11 @@ v <- sort(rowSums(m),decreasing=TRUE)
 term_dox_matrix <- data.frame(word = names(v),freq=v)
 head(term_dox_matrix, 10)
 ```
+
 We can see that the most common words are light, lights, sky, object, and bright. This follows what we plotted earlier.
 
-
 Now, we can create a word cloud.
+
 ```{r}
 #generate word cloud
 set.seed(1234)
@@ -384,8 +400,7 @@ wordcloud2(term_dox_matrix , color = "random-light", backgroundColor = "grey")
 
 ```
 
-
-#### Sentiment Analysis 
+#### Sentiment Analysis
 
 Let's explore sentiment analysis.
 
@@ -403,7 +418,6 @@ barplot(colSums(emotions),
         ylab = 'Count',
         main = 'Sentiment Scores')
 ```
-
 
 ```{r}
 sentiments <- get_sentiments("nrc")
@@ -423,5 +437,4 @@ df_sentiments_filtered1 %>%
   xlab("Sentiments")
 ```
 
-The most common sentiment by a large margin is positive. 
-
+The most common sentiment by a large margin is positive.
