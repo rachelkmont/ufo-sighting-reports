@@ -7,6 +7,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+options(tinytex.verbose = TRUE)
 ```
 
 # Findings in UFO Project
@@ -307,12 +309,12 @@ ggplot(UFO_and_Weather, aes(x=reorder(state, state, FUN=length))) +
 
 ```
 
-The states with the most reports are California, Washington, and Arizona. 
+The states with the most reports are California, Washington, and Arizona.
 
 However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
 
-
 ### Text Analysis
+
 In this section, we will perform text analysis on the text from reports.
 
 #### Word Frequency
