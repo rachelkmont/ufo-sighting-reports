@@ -62,6 +62,8 @@ library(syuzhet)
 library(patchwork)
 library(factoextra)
 
+
+library(extrafont)
 ```
 
 Reading in data:
@@ -142,6 +144,47 @@ ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
   coord_flip()
 
 ```
+
+```{r}
+loadfonts(device = "win")
+
+ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "UFO Sightings throughout the day") +
+  xlab("Month") +
+  ylab("Number of sightings") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 16,
+      family = "Decima WE",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 14, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 12)) +
+  coord_flip()
+```
+
+```{r}
+  
+  p + theme(
+  panel.background = element_rect(fill = "lightblue",
+                                colour = "lightblue",
+                                size = 0.5, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white")
+  )
+```
+
 
 We can see that July has the most by quite a good margin. When we examine year by year, for 4/5 years July has either the most or the 2nd most sightings. This has me think that we should plot the number of sightings per each day in July. Maybe this is because of the 4th of july - a lot of fireworks and air shows happening? Because its summer more people are out and about and looking at the sky?
 
@@ -247,6 +290,25 @@ ggplot(UFO_and_Weather, aes(x=hour)) +
   labs(x = "Hour of the day", y = "Number of sightings", 
        title="UFO Sightings throughout the day")
 ```
+
+Making the graph prettier 
+
+```{r}
+
+ggplot(UFO_and_Weather, aes(x=hour)) + 
+  geom_bar(alpha=0.7) +
+  scale_fill_brewer(palette = "Greens") +
+                labs(title="UFO Sightings throughout the day") +
+                xlab("Hour of the day") +
+                ylab("Number of sightings") +
+                theme_bw() +
+                theme(plot.title = element_text(size = 14, 
+                    family = "Tahoma", face = "bold"),
+                    text = element_text(size = 12, family = "Tahoma"),
+                    axis.title = element_text(face="bold"),
+                    axis.text.x=element_text(size = 8)) 
+```
+
 
 We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm. The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it's worth noting that there have been reports of UFOs during the day as well.
 
