@@ -3,6 +3,8 @@ title: "Findings for text analysis and frequency of sightings"
 author: "Rachel Montgomery"
 date: "2022-11-29"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -56,6 +58,10 @@ library(wordcloud)
 library(wordcloud2)
 library(RColorBrewer)
 library(syuzhet)
+
+library(patchwork)
+library(factoextra)
+
 ```
 
 Reading in data:
@@ -148,43 +154,47 @@ Let's investigate if how the popular months vary by the years.
 weather_2019 <- UFO_and_Weather %>%
     filter(year == 2019)
 #plotting
-ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
+w19 <- ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
-  labs(title="Sightings by month for 2019", x="month", y="count")+
+  labs(title="2019", x="month", y="count")+
   coord_flip()
 
 
 weather_2018 <- UFO_and_Weather %>%
     filter(year == 2018)
 #plotting
-ggplot(weather_2018, aes(x=reorder(Month, Month, FUN=length)))+
+w18 <- ggplot(weather_2018, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
-  labs(title="Sightings by month for 2018", x="month", y="count")+
+  labs(title="2018", x="month", y="count")+
   coord_flip()
 
 weather_2017 <- UFO_and_Weather %>%
     filter(year == 2017)
 #plotting
-ggplot(weather_2017, aes(x=reorder(Month, Month, FUN=length)))+
+w17 <- ggplot(weather_2017, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
-  labs(title="Sightings by month for 2017", x="month", y="count")+
+  labs(title="2017", x="month", y="count")+
   coord_flip()
 
 weather_2016 <- UFO_and_Weather %>%
     filter(year == 2016)
 #plotting
-ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
+w16 <- ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
-  labs(title="Sightings by month for 2016", x="month", y="count")+
+  labs(title="2016", x="month", y="count")+
   coord_flip()
 
 weather_2015 <- UFO_and_Weather %>%
     filter(year == 2015)
 #plotting
-ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
+w15 <- ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
   geom_bar()+
-  labs(title="Sightings by month for 2015", x="month", y="count")+
+  labs(title="2015", x="month", y="count")+
   coord_flip()
+
+#now lets plot all the years at the same time using the patchwork library
+w15 + w16 + w17 + w18 + w19
+
 ```
 
 We can consistently see that July has a large amount of sightings. Let's investigate just the month of July.
@@ -231,12 +241,11 @@ UFO_and_Weather <- UFO_and_Weather %>%
 
 ```{r}
 ggplot(UFO_and_Weather, aes(x=hour)) + 
-  geom_histogram(bins=24, aes(fill=..count..)) +
+  geom_bar() +
   theme_bw() + 
   scale_fill_gradient(low = "palegreen", high = "palegreen4") +
   labs(x = "Hour of the day", y = "Number of sightings", 
-       title="Correlation between daytime / UFO sightings", 
-       subtitle = "Sightings during the day")
+       title="UFO Sightings throughout the day")
 ```
 
 We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm. The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it's worth noting that there have been reports of UFOs during the day as well.
@@ -296,6 +305,8 @@ ggplot(sightingsYear, aes(x=year, y=count))  +
        subtitle = "Sightings during the day")
 ```
 
+
+
 #### Which states have the most sightings?
 
 ```{r}
@@ -312,6 +323,28 @@ ggplot(UFO_and_Weather, aes(x=reorder(state, state, FUN=length))) +
 The states with the most reports are California, Washington, and Arizona.
 
 However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
+
+#### Which cities have the most sightings?
+```{r}
+#city state counts of sightings
+state_counts <- UFO_and_Weather %>%
+  filter(state != '')%>%
+  count(city, state, sort=TRUE)%>%
+  unite('location', -n, sep=',')
+
+#visualize with lollipop chart
+state_counts %>%
+  filter(n > 90)%>%
+  mutate(x = factor(location))%>%
+  ggplot(aes(x, n))+
+  geom_segment(aes(x=reorder(x,n), xend=x, y=0, yend=n), size=1)+
+  geom_point(color='red', size=2, alpha=.6)+
+  coord_flip()+
+  theme_minimal() + 
+  theme(axis.text.y = element_text(size = 7))+
+  labs(title='Which cities have had the most sightings?')
+```
+
 
 ### Text Analysis
 
@@ -395,7 +428,7 @@ wordcloud(words = term_dox_matrix $word, freq = term_dox_matrix $freq, min.freq 
 ```{r}
 #We can also create word clouds in specific shapes
 
-wordcloud2(data=term_dox_matrix , size = 0.4, shape = 'star')
+wordcloud2(data=term_dox_matrix , size = 0.4, shape = 'diamond')
 
 
 wordcloud2(term_dox_matrix , color = "random-light", backgroundColor = "grey")
