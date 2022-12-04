@@ -25,7 +25,7 @@
 - [].ppt Final Presentation of our Findings 
 
 
-# Team 10 Final Project Anticipated Schedule (Subject to Change)
+## Anticipated Schedule (Subject to Change)
 by Wed 10/26: 
 * Come up with overarching question
 * Dataset(s) 
