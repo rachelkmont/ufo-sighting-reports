@@ -3,29 +3,27 @@
 ### DS 5610 Fall 2022 
 
 ## 01_Preprocessing https://github.com/DSI-EDA-2022/Team10_final/tree/main/01_Preprocessing
-nuforc_reports: the raw data downloaded from https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000 
-Missingness_Investigation.Rmd: preliminary analysis of the raw data
+- nuforc_reports: the raw data downloaded from https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000 
+- Missingness_Investigation.Rmd: preliminary analysis of the raw data
 ## 02_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data
-Clean_UFO_Dataset.Rmd: file used to clean the raw data (nuforc_reports) initially
-JoinWeather.ipynb: file used to join weather data 
-[JoinPolitical].Rmd: file used to join political data (name subject to change)
-[JoinCultural].Rmd: file used to join cultural data (name subject to change)
+- Clean_UFO_Dataset.Rmd: file used to clean the raw data (nuforc_reports) initially
+- JoinWeather.ipynb: file used to join weather data 
+- [JoinPolitical].Rmd: file used to join political data (name subject to change)
+- [JoinCultural].Rmd: file used to join cultural data (name subject to change)
 ## 02_Data >> Clean_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data/Clean_Data 
-DataDictionary.pdf: data dictionary of all the variables from the UFO dataset we use and the variables from the joined datasets 
-UFO_and_Weather.csv: final clean data UFO reports joined to weather data 
-[UFO_and_Political].csv: final clean data UFO reports joined to political data 
- (name subject to change)
-[UFO_and_Cultural].csv: final clean data UFO reports joined to cultural data 
- (name subject to change)
+- DataDictionary.pdf: data dictionary of all the variables from the UFO dataset we use and the variables from the joined datasets 
+- UFO_and_Weather.csv: final clean data UFO reports joined to weather data 
+- [UFO_and_Political].csv: final clean data UFO reports joined to political data (name subject to change)
+- [UFO_and_Cultural].csv: final clean data UFO reports joined to cultural data (name subject to change)
 ## 03_Main_Findings https://github.com/DSI-EDA-2022/Team10_final/tree/main/03_Main_Findings 
-Frequency and Text Analysis.Rmd: Investigation of UFO report frequency and patterns across time as well as a text analysis from the descriptions of UFO reports
-MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
-Weather.Rmd: Investigation of the weather around UFO reports using UFO_and_Weather.csv 
-[cultural]
-[political]
+- Frequency and Text Analysis.Rmd: Investigation of UFO report frequency and patterns across time as well as a text analysis from the descriptions of UFO reports
+- MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
+- Weather.Rmd: Investigation of the weather around UFO reports using UFO_and_Weather.csv 
+- [cultural]
+- [political]
 ## 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
-[].pdf: Final Report of our Findings
-[].ppt Final Presentation of our Findings 
+- [].pdf: Final Report of our Findings
+- [].ppt Final Presentation of our Findings 
 
 
 # Team 10 Final Project Anticipated Schedule (Subject to Change)
