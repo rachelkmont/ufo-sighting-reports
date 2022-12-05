@@ -47,6 +47,9 @@ This rmd file encompasses the exploratory data analysis regarding the following 
 Loading in needed libraries:
 
 ```{r}
+
+extrafont::loadfonts(device = "win")
+
 library(readr)
 library(tidyverse)
 library(dplyr)
@@ -59,11 +62,13 @@ library(wordcloud2)
 library(RColorBrewer)
 library(syuzhet)
 
+library(gridExtra)
 library(patchwork)
 library(factoextra)
 
 
 library(extrafont)
+library(extrafontdb)
 ```
 
 Reading in data:
@@ -156,7 +161,7 @@ ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
   theme_bw() +
   theme(plot.title = element_text(
       size = 16,
-      family = "Decima WE",
+      family = "sans",
       face = "bold",hjust = 0.5),
       panel.background = element_rect(fill = "grey88",
                                 colour = "grey88",
@@ -198,47 +203,153 @@ weather_2019 <- UFO_and_Weather %>%
     filter(year == 2019)
 #plotting
 w19 <- ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  labs(title="2019", x="month", y="count")+
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "2019") +
+  xlab("Month") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 10, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 5),
+    axis.text.y = element_text(size = 6)) +
   coord_flip()
-
 
 weather_2018 <- UFO_and_Weather %>%
     filter(year == 2018)
 #plotting
 w18 <- ggplot(weather_2018, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  labs(title="2018", x="month", y="count")+
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "2018") +
+  xlab("Month") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 10, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 5),
+    axis.text.y = element_text(size = 6)) +
   coord_flip()
 
 weather_2017 <- UFO_and_Weather %>%
     filter(year == 2017)
 #plotting
 w17 <- ggplot(weather_2017, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  labs(title="2017", x="month", y="count")+
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "2017") +
+  xlab("Month") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 10, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 4),
+    axis.text.y = element_text(size = 6)) +
   coord_flip()
 
 weather_2016 <- UFO_and_Weather %>%
     filter(year == 2016)
 #plotting
 w16 <- ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  labs(title="2016", x="month", y="count")+
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "2016") +
+  xlab("Month") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 10, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 5),
+    axis.text.y = element_text(size = 6)) +
   coord_flip()
 
 weather_2015 <- UFO_and_Weather %>%
     filter(year == 2015)
 #plotting
 w15 <- ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  labs(title="2015", x="month", y="count")+
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "2015") +
+  xlab("Month") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 10, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 5),
+    axis.text.y = element_text(size = 6)) +
   coord_flip()
 
 #now lets plot all the years at the same time using the patchwork library
-w15 + w16 + w17 + w18 + w19
+#w15 + w16 + w17 + w18 + w19
+
+grid.arrange(w15,w16,w17,w18,w19, nrow = 2, top="Sightings per Month")#
 
 ```
+
+
+```{r}
+ggplot(FL_Biodiversity_weather, aes(x = month, y = Monthly_temp, fill = `Park Name`)) + 
+  geom_bar(stat = "identity", width = 1) +
+  facet_wrap(~`Park Name`) + 
+  scale_fill_brewer(palette = "Paired") + 
+  scale_y_continuous(name="Count", limits=c(0, 100)) 
+```
+
 
 We can consistently see that July has a large amount of sightings. Let's investigate just the month of July.
 
@@ -248,9 +359,34 @@ For the month of July, which days are the most popular?
 just_july <- UFO_and_Weather %>%
   filter(month== 7)
 
-ggplot(just_july, aes(x=reorder(day, day, FUN=length)))+
-  geom_bar()+
+#ggplot(just_july, aes(x=reorder(day, day, FUN=length)))+
+ # geom_bar()+
   coord_flip()
+#
+ggplot(just_july, aes(x = reorder(day, day, FUN = length))) +
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "UFO Sightings in the month of July") +
+  xlab("Day") +
+  ylab("Number of sightings") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 16,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 14, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 7)) +
+  coord_flip()
+
 
 ```
 
@@ -284,11 +420,27 @@ UFO_and_Weather <- UFO_and_Weather %>%
 
 ```{r}
 ggplot(UFO_and_Weather, aes(x=hour)) + 
-  geom_bar() +
-  theme_bw() + 
-  scale_fill_gradient(low = "palegreen", high = "palegreen4") +
-  labs(x = "Hour of the day", y = "Number of sightings", 
-       title="UFO Sightings throughout the day")
+ geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "UFO Sightings throughout the day") +
+  xlab("Hour of the day") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 16,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 14, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 12)) +
+
 ```
 
 Making the graph prettier 
@@ -296,17 +448,28 @@ Making the graph prettier
 ```{r}
 
 ggplot(UFO_and_Weather, aes(x=hour)) + 
-  geom_bar(alpha=0.7) +
+  geom_bar(alpha = 0.7, fill = "forestgreen") +
   scale_fill_brewer(palette = "Greens") +
                 labs(title="UFO Sightings throughout the day") +
                 xlab("Hour of the day") +
                 ylab("Number of sightings") +
-                theme_bw() +
-                theme(plot.title = element_text(size = 14, 
-                    family = "Tahoma", face = "bold"),
-                    text = element_text(size = 12, family = "Tahoma"),
-                    axis.title = element_text(face="bold"),
-                    axis.text.x=element_text(size = 8)) 
+  theme(plot.title = element_text(
+      size = 16,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 12, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 8)) 
+ 
+
 ```
 
 
@@ -342,9 +505,29 @@ UFO_and_Weather$weekday <- weekdays(UFO_and_Weather$date_time)
 ```{r}
 #plotting
 ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
-  geom_bar()+
-  labs(title="Sightings by day of week", x="day of week", y="count")+
+ geom_bar(alpha = 0.7, fill = "forestgreen") +
+  labs(title = "Sightings by day of week") +
+  xlab("Day of Week") +
+  ylab("Count") +
+  theme_bw() +
+  theme(plot.title = element_text(
+      size = 16,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 14, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(size = 12)) +
   coord_flip()
+
+
 ```
 
 Weekends have the most sightings, which is interesting. Combining this with the fact that most are night, infers that many sightings are during "drinking" or social hours at night. This could hinder the reliability of sightings.
@@ -448,11 +631,28 @@ ufo_no_stop %>%
   count(word, sort = T) %>% 
   slice(1:15) %>% 
   ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) + 
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", alpha = 0.7, fill = "forestgreen") + 
   theme_light() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+  theme(plot.title = element_text(size = 13,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+  
+    text = element_text(size = 11, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 60, hjust = 1, size=10),
+    axis.text.y = element_text(size = 9)) + 
+  
+  labs(title ="Word Frequency without Stop Words" )+
   xlab("Words") +
-  ggtitle("Word Frequency without Stop Words") 
+  ylab("Count")
+
 ```
 
 We can see the most common words are those typical for a UFO report. Light, sky, object, moving, and looked all make sense here.
@@ -528,10 +728,28 @@ df_sentiments_filtered1 <- df_sentiments1 %>%
 
 df_sentiments_filtered1 %>% 
   ggplot(aes(x = reorder(sentiment, n, function(n) -n), y = n)) + 
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", alpha=0.7, fill="forestgreen") + 
   theme_light() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
-  xlab("Sentiments")
+  theme(plot.title = element_text(size = 12,
+      family = "sans",
+      face = "bold",hjust = 0.5),
+      panel.background = element_rect(fill = "grey88",
+                                colour = "grey88",
+                                size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "grey92"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "grey92"),
+    text = element_text(size = 11, family = "sans"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 60, hjust = 1,  size=10),
+    axis.text.y = element_text(size = 9)) + 
+    labs(title ="Sentiments in UFO Reports")+
+  xlab("Emotions") +
+  ylab("Count")
 ```
 
+
 The most common sentiment by a large margin is positive.
+
+Overall, this sentiment analysis isn't as relevant and is subjective, and therefore will not be included in the final report of findsings.
