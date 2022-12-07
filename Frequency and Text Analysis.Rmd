@@ -116,8 +116,17 @@ UFO_and_Weather <- UFO_and_Weather %>%
 
 ```{r}
 ggplot(UFO_and_Weather, aes(x=season))+
-  geom_bar()+
+  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
+  labs(title = "UFO Sightings grouped by the seasons") +
+  xlab("Season") +
+  ylab("Number of sightings") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),) +
   coord_flip()
+
 ```
 
 We can see that the fall months have the most sightings, with summer having the 2nd most.
@@ -141,47 +150,11 @@ UFO_and_Weather <- UFO_and_Weather %>%
     month=="10" ~ "October",
     month=="11" ~ "November",
     month=="12" ~ "December"))
-```
 
-```{r}
-ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  coord_flip()
-
-```
-
-```{r}
-loadfonts(device = "win")
-
-ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
-  labs(title = "UFO Sightings throughout the day") +
-  xlab("Month") +
-  ylab("Number of sightings") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 14, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 12)) +
-  coord_flip()
-```
-
-####ok lets see if we can make this look a little better!
-```{r}
+#plotting 
 ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
-  labs(title = "UFO Sightings throughout the day") +
+  labs(title = "UFO Sightings thoughout the year") +
   xlab("Month") +
   ylab("Number of sightings") +
   theme_minimal() +
@@ -193,7 +166,6 @@ ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
   coord_flip()
 ```
 
-
 We can see that July has the most by quite a good margin. When we examine year by year, for 4/5 years July has either the most or the 2nd most sightings. This has me think that we should plot the number of sightings per each day in July. Maybe this is because of the 4th of july - a lot of fireworks and air shows happening? Because its summer more people are out and about and looking at the sky?
 
 Let's investigate if how the popular months vary by the years.
@@ -202,13 +174,12 @@ Let's investigate if how the popular months vary by the years.
 ```{r}
 #let's see if this pattern of mostly being in the fall is a yearly pattern!
 
-
-$UFO_and_Weather$Month = factor(UFO_and_Weather$Month, levels=month.abb)
+#UFO_and_Weather$Month = factor(UFO_and_Weather$Month, levels=month.abb)
 
 weather_2019 <- UFO_and_Weather %>%
     filter(year == 2019)
 #plotting
-w19 <- ggplot(weather_2019, aes(x=Month))+
+w19 <- ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
    geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2019") +
   xlab("Month") +
