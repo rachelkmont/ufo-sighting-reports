@@ -88,29 +88,6 @@ str(UFO_and_Weather)
 
 ## Data Analysis
 
-### Intro of data
-
-first, lets see if there is any correlation between our variables 
-
-in order to see correlations, need to subset the data into just our numeric variables
-
-```{r}
-
-```
-
-
-```{r}
-library(psych)
-pairs.panels(iris[,-5], 
-             method = "pearson", # correlation method
-             hist.col = "#00AFBB",
-             density = TRUE,  # show density plots
-             ellipses = TRUE # show correlation ellipses
-             )
-```
-
-
-
 
 ### Frequency of Sightings
 
