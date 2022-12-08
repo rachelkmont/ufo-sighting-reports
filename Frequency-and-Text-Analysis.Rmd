@@ -187,6 +187,18 @@ We can see that July has the most by quite a good margin. When we examine year b
 
 Let's investigate if how the popular months vary by the years.
 
+in order to make plot for ppt, limit each year's plot for top 5 months and show across in one line
+
+df3 <- df %>% 
+  group_by(Region_Off) %>% 
+  count(Partner) %>% 
+  arrange(desc(n)) %>% 
+  slice(1:5)
+
+ggplot(df3, aes(Partner, n)) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~ Region_Off)
+
 ```{r}
 #let's see if this pattern of mostly being in the fall is a yearly pattern!
 
@@ -276,7 +288,31 @@ w15 <- ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
 
 grid.arrange(w15,w16,w17,w18,w19, nrow = 2, top="Sightings per Month")#
 
+grid.arrange(w15,w16,w17,w18,w19, nrow = 1, top="Sightings per Month")
+
 ```
+
+attempt again with using facet wrap 
+
+```{r}
+# ggplot(subset(UFO_and_Weather, year %in% c(2015, 2016,2017,2018)),
+#        aes(x = Month)) +
+#   geom_bar(aes(color=Month), alpha = 0.5) +
+#   geom_point(alpha = 0.8,
+#              size = 0.4) +
+#   theme_light() +
+#   labs(title = "ufo across years",
+#        x = "Count",
+#        y = "Year") +
+#   scale_x_continuous(breaks = seq(1950,2000, 25))+
+#   facet_wrap(year~.)
+# 
+# 
+# w16 <- ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
+#    geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) 
+```
+
+
 
 
 We can consistently see that July has a large amount of sightings. Let's investigate just the month of July.
@@ -325,8 +361,9 @@ UFO_and_Weather <- UFO_and_Weather %>%
     hour >=6 & hour <= 18 ~ "day",
     hour < 5  ~ "night",
     hour >18 ~ "night"))
+```
 
-#now plotting
+```{r}
 ggplot(UFO_and_Weather, aes(x=hour)) + 
   geom_bar(alpha = 0.9,position=position_dodge(width=0.8) ,fill = "darkslateblue") +
   scale_fill_brewer(palette = "Greens") +
@@ -376,7 +413,9 @@ We can see from the plot that the shapes are more prevalent/persistent at night 
 ```{r}
 #To see the most popular day of the week, we need to manipulate the original date time variable
 UFO_and_Weather$weekday <- weekdays(UFO_and_Weather$date_time)
+```
 
+```{r}
 #plotting
 ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
@@ -421,6 +460,7 @@ ggplot(sightingsYear, aes(x=year, y=count))  +
         axis.text.y = element_text(size = 7)) 
 
 ```
+
 
 
 #### Which states have the most sightings?
@@ -497,7 +537,6 @@ words %>% count(word, sort = T) %>% slice(1:15) %>%
   #theme_light() +
   #theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
   xlab("Words") +
-  ylab("Count") +
   ggtitle(" Word Count (with stop words)") +
   theme_minimal() +
   theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
@@ -515,15 +554,6 @@ In the next step, we'll remove the stop words so we can focus on the important w
 ufo_no_stop <- words %>% 
   anti_join(stop_words)
 
-#creating personal stop words to take out
-#these words either have to do with reporting, or wern't topic words
-personal_stop_words <- stop_words %>% 
-  dplyr::select(-lexicon) %>%
-  bind_rows(data.frame(word = c("nuforc", "note", "time", "looked", "appeared","minutes")))
-
-ufo_no_stop <- ufo_no_stop %>% 
-  anti_join(personal_stop_words)
-
 #plotting
 ufo_no_stop %>%
   count(word, sort = T) %>% 
@@ -534,7 +564,7 @@ ufo_no_stop %>%
   theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
         text = element_text(size = 10),
         axis.title = element_text(face = "bold"),
-        axis.text.x = element_text(size = 7)) +
+        axis.text.x = element_text(size = 8)) +
   labs(title ="Word Frequency without Stop Words" )+
   xlab("Words") +
   ylab("Count")
@@ -638,4 +668,4 @@ df_sentiments_filtered1 %>%
 
 The most common sentiment by a large margin is positive.
 
-Overall, this sentiment analysis isn't as relevant and is subjective, and therefore will not be included in the final report of findings.
+Overall, this sentiment analysis isn't as relevant and is subjective, and therefore will not be included in the final report of findsings.
