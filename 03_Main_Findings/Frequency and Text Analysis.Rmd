@@ -47,9 +47,6 @@ This rmd file encompasses the exploratory data analysis regarding the following 
 Loading in needed libraries:
 
 ```{r}
-
-extrafont::loadfonts(device = "win")
-
 library(readr)
 library(tidyverse)
 library(dplyr)
@@ -65,10 +62,6 @@ library(syuzhet)
 library(gridExtra)
 library(patchwork)
 library(factoextra)
-
-
-library(extrafont)
-library(extrafontdb)
 ```
 
 Reading in data:
@@ -95,6 +88,7 @@ str(UFO_and_Weather)
 
 ## Data Analysis
 
+
 ### Frequency of Sightings
 
 #### Which season has the most sightings? Has this changed over the years?
@@ -116,8 +110,17 @@ UFO_and_Weather <- UFO_and_Weather %>%
 
 ```{r}
 ggplot(UFO_and_Weather, aes(x=season))+
-  geom_bar()+
+  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
+  labs(title = "UFO Sightings grouped by the seasons") +
+  xlab("Season") +
+  ylab("Number of sightings") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),) +
   coord_flip()
+
 ```
 
 We can see that the fall months have the most sightings, with summer having the 2nd most.
@@ -141,55 +144,21 @@ UFO_and_Weather <- UFO_and_Weather %>%
     month=="10" ~ "October",
     month=="11" ~ "November",
     month=="12" ~ "December"))
-```
 
-```{r}
-ggplot(UFO_and_Weather, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar()+
-  coord_flip()
-
-```
-
-```{r}
-loadfonts(device = "win")
-
+#plotting 
 ggplot(UFO_and_Weather, aes(x = reorder(Month, Month, FUN = length))) +
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
-  labs(title = "UFO Sightings throughout the day") +
+  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
+  labs(title = "UFO Sightings thoughout the year") +
   xlab("Month") +
   ylab("Number of sightings") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 14, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 12)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        ) +
   coord_flip()
 ```
-
-```{r}
-  
-  p + theme(
-  panel.background = element_rect(fill = "lightblue",
-                                colour = "lightblue",
-                                size = 0.5, linetype = "solid"),
-  panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "white"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "white")
-  )
-```
-
 
 We can see that July has the most by quite a good margin. When we examine year by year, for 4/5 years July has either the most or the 2nd most sightings. This has me think that we should plot the number of sightings per each day in July. Maybe this is because of the 4th of july - a lot of fireworks and air shows happening? Because its summer more people are out and about and looking at the sky?
 
@@ -198,156 +167,92 @@ Let's investigate if how the popular months vary by the years.
 ```{r}
 #let's see if this pattern of mostly being in the fall is a yearly pattern!
 
+#UFO_and_Weather$Month = factor(UFO_and_Weather$Month, levels=month.abb)
 
 weather_2019 <- UFO_and_Weather %>%
     filter(year == 2019)
 #plotting
 w19 <- ggplot(weather_2019, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2019") +
   xlab("Month") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 12,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 10, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 5),
-    axis.text.y = element_text(size = 6)) +
+   theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold",hjust = 0.5),
+        text = element_text(size = 5),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 6),
+        ) +
+  scale_x_discrete(limits = month.abb) +
   coord_flip()
 
 weather_2018 <- UFO_and_Weather %>%
     filter(year == 2018)
 #plotting
 w18 <- ggplot(weather_2018, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2018") +
   xlab("Month") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 12,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 10, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 5),
-    axis.text.y = element_text(size = 6)) +
+    theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold",hjust = 0.5),
+        text = element_text(size = 5),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 6),
+        ) +
   coord_flip()
 
 weather_2017 <- UFO_and_Weather %>%
     filter(year == 2017)
 #plotting
 w17 <- ggplot(weather_2017, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2017") +
   xlab("Month") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 12,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 10, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 4),
-    axis.text.y = element_text(size = 6)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold",hjust = 0.5),
+        text = element_text(size = 5),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 6),
+        ) +
   coord_flip()
 
 weather_2016 <- UFO_and_Weather %>%
     filter(year == 2016)
 #plotting
 w16 <- ggplot(weather_2016, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2016") +
   xlab("Month") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 12,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 10, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 5),
-    axis.text.y = element_text(size = 6)) +
+   theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold",hjust = 0.5),
+        text = element_text(size = 5),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 6),
+        ) +
   coord_flip()
 
 weather_2015 <- UFO_and_Weather %>%
     filter(year == 2015)
 #plotting
 w15 <- ggplot(weather_2015, aes(x=reorder(Month, Month, FUN=length)))+
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+   geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "2015") +
   xlab("Month") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 12,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 10, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 5),
-    axis.text.y = element_text(size = 6)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold",hjust = 0.5),
+        text = element_text(size = 5),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 6),
+        ) +
   coord_flip()
 
-#now lets plot all the years at the same time using the patchwork library
-#w15 + w16 + w17 + w18 + w19
 
 grid.arrange(w15,w16,w17,w18,w19, nrow = 2, top="Sightings per Month")#
 
-```
-
-
-```{r}
-ggplot(FL_Biodiversity_weather, aes(x = month, y = Monthly_temp, fill = `Park Name`)) + 
-  geom_bar(stat = "identity", width = 1) +
-  facet_wrap(~`Park Name`) + 
-  scale_fill_brewer(palette = "Paired") + 
-  scale_y_continuous(name="Count", limits=c(0, 100)) 
 ```
 
 
@@ -359,44 +264,25 @@ For the month of July, which days are the most popular?
 just_july <- UFO_and_Weather %>%
   filter(month== 7)
 
-#ggplot(just_july, aes(x=reorder(day, day, FUN=length)))+
- # geom_bar()+
-  coord_flip()
-#
+#plotting
 ggplot(just_july, aes(x = reorder(day, day, FUN = length))) +
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "UFO Sightings in the month of July") +
   xlab("Day") +
   ylab("Number of sightings") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 14, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 7)) +
-  coord_flip()
-
-
+   theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 7)) +
+        coord_flip()
 ```
 
 Wow!!! The fourth of july has about 2.5x more than all other days!! Some possible explanations for this are because there are a ton of fireworks going off, which cause light and sound to be in the sky, and could be mistaken for UFOS. Also there are air shows that occur, which could also be reported as UFOS. Because of these festivities, many people are out at night and looking at the sky, so mere exposure effect could be play. Additionally, it should be noted that this is a national holiday, and one that is often celebrated with alcohol, which conflicts the reliability of these reports.
 
 Overall, the 4th of July is an outlier and should be treated as such in following analysis.
 
-##### Fourth of July: Outlier
-
-Let's investigate the popularity of months if we remove the July 4th outlier.
 
 #### Which times of the day are the most popular for sightings?
 
@@ -416,62 +302,21 @@ UFO_and_Weather <- UFO_and_Weather %>%
     hour >=6 & hour <= 18 ~ "day",
     hour < 5  ~ "night",
     hour >18 ~ "night"))
-```
 
-```{r}
+#now plotting
 ggplot(UFO_and_Weather, aes(x=hour)) + 
- geom_bar(alpha = 0.7, fill = "forestgreen") +
-  labs(title = "UFO Sightings throughout the day") +
-  xlab("Hour of the day") +
-  ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 14, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 12)) +
-
-```
-
-Making the graph prettier 
-
-```{r}
-
-ggplot(UFO_and_Weather, aes(x=hour)) + 
-  geom_bar(alpha = 0.7, fill = "forestgreen") +
+  geom_bar(alpha = 0.9,position=position_dodge(width=0.8) ,fill = "darkslateblue") +
   scale_fill_brewer(palette = "Greens") +
                 labs(title="UFO Sightings throughout the day") +
                 xlab("Hour of the day") +
                 ylab("Number of sightings") +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 12, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 8)) 
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))
  
-
 ```
-
 
 We can see that the most sightings are at night, specifically between the hours of 6 pm and 11 pm. The histogram clearly shows that the majority of the sightings occur when there is no or very little light. However, it's worth noting that there have been reports of UFOs during the day as well.
 
@@ -480,17 +325,25 @@ We can see that the most sightings are at night, specifically between the hours 
 We can look at the relationship between the shapes and the time of day. This may explain why the light shape is the most frequently reported shape.
 
 ```{r}
+#subsetting data for just shapes and time
 shapesDaytime <- 
   UFO_and_Weather %>% 
   group_by(hour, shape) %>% 
   summarize(count=n());
-  
+
+#plotting 
 ggplot(shapesDaytime, aes(x=hour, y=shape)) + 
-  geom_point(aes(color=count, size=count)) + 
-  scale_colour_gradient(low = "palegreen", high="palegreen4") +
+  geom_point(aes(color=count, size=count, )) + 
+  scale_colour_gradient(low = "lightblue", high="darkslateblue") +
   labs(x = "Hour of the day", y = "UFO Shape", 
        title="Correlation between daytime / UFO Shape", 
-       subtitle = "Sightings during the day")
+       subtitle = "Sightings during the day") +
+theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 7))
 ```
 
 We can see from the plot that the shapes are more prevalent/persistent at night as well. We can see that light appears more frequently at night and in the evening, but less frequently during the day than other common shapes.
@@ -500,34 +353,20 @@ We can see from the plot that the shapes are more prevalent/persistent at night 
 ```{r}
 #To see the most popular day of the week, we need to manipulate the original date time variable
 UFO_and_Weather$weekday <- weekdays(UFO_and_Weather$date_time)
-```
 
-```{r}
 #plotting
 ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
- geom_bar(alpha = 0.7, fill = "forestgreen") +
+ geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "Sightings by day of week") +
   xlab("Day of Week") +
   ylab("Count") +
-  theme_bw() +
-  theme(plot.title = element_text(
-      size = 16,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 14, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(size = 12)) +
-  coord_flip()
-
-
+   theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 7)) +
+        coord_flip()
 ```
 
 Weekends have the most sightings, which is interesting. Combining this with the fact that most are night, infers that many sightings are during "drinking" or social hours at night. This could hinder the reliability of sightings.
@@ -540,32 +379,45 @@ sightingsYear <-
   UFO_and_Weather %>% group_by(year) %>% 
   summarize(count=n());
 
+#getting the reports by year
 reportsYear <- 
   UFO_and_Weather %>% group_by(year) %>% 
-  summarize(count=n());
+  summarize(count=n())
+
+#plotting
 ggplot(sightingsYear, aes(x=year, y=count))  + 
   geom_smooth(method="lm") +
   labs(x = "Year", y = "red= sightings", 
        title="UFO sightings / UFO reports by year", 
-       subtitle = "Sightings during the day")
-```
+       subtitle = "Sightings during the day") +
+    theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 7)) 
 
+```
 
 
 #### Which states have the most sightings?
 
 ```{r}
 ggplot(UFO_and_Weather, aes(x=reorder(state, state, FUN=length))) + 
-  stat_count() +
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle=45, size=9, hjust=1)) + 
+  stat_count(fill="darkslateblue") +
   labs(x = "State", y = "Number of sightings", 
        title="UFO sightings in United States", 
-       subtitle = "Sightings by state")
+       subtitle = "Sightings by state")+
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(angle=45, size=4, hjust=1,face = "bold"),
+        axis.text.y = element_text(size = 7))
 
 ```
 
-The states with the most reports are California, Washington, and Arizona.
+The states with the most reports are California, Florida, and Washington.
 
 However, an important point to note is that, based on population density, the state of Washington has a higher density of sightings than California. California and Washington have both legalized marijuana for recreational use, which could explain why there have been so many sightings on the west coast.
 
@@ -577,17 +429,25 @@ state_counts <- UFO_and_Weather %>%
   count(city, state, sort=TRUE)%>%
   unite('location', -n, sep=',')
 
+
 #visualize with lollipop chart
 state_counts %>%
   filter(n > 90)%>%
   mutate(x = factor(location))%>%
   ggplot(aes(x, n))+
   geom_segment(aes(x=reorder(x,n), xend=x, y=0, yend=n), size=1)+
-  geom_point(color='red', size=2, alpha=.6)+
-  coord_flip()+
-  theme_minimal() + 
+  geom_point(color='darkslateblue', size=2, alpha=.6)+
   theme(axis.text.y = element_text(size = 7))+
-  labs(title='Which cities have had the most sightings?')
+  labs(title="Which cities have had the most sightings?") +
+  xlab("Count") +
+  ylab("Cities")+
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 7)) +
+        coord_flip()
 ```
 
 
@@ -610,11 +470,17 @@ head(words)
 
 words %>% count(word, sort = T) %>% slice(1:15) %>%
   ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) +
-  geom_bar(stat = 'identity') +
-  theme_light() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  geom_bar(stat = 'identity' ,fill = "darkslateblue") +
+  #theme_light() +
+  #theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
   xlab("Words") +
-  ggtitle(" Word Count (with stop words)")
+  ylab("Count") +
+  ggtitle(" Word Count (with stop words)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))
 ```
 
 As we can see, the most popular words (at the moment) are words that are commonly used in the English language, regardless of context. These are called stop words. Examples of stop words in English are "a", "the", "is", "are" and etc.
@@ -626,29 +492,26 @@ In the next step, we'll remove the stop words so we can focus on the important w
 ufo_no_stop <- words %>% 
   anti_join(stop_words)
 
+#creating personal stop words to take out
+#these words either have to do with reporting, or wern't topic words
+personal_stop_words <- stop_words %>% 
+  dplyr::select(-lexicon) %>%
+  bind_rows(data.frame(word = c("nuforc", "note", "time", "looked", "appeared","minutes")))
 
+ufo_no_stop <- ufo_no_stop %>% 
+  anti_join(personal_stop_words)
+
+#plotting
 ufo_no_stop %>%
   count(word, sort = T) %>% 
   slice(1:15) %>% 
   ggplot(aes(x = reorder(word, n, function(n) -n), y = n)) + 
-  geom_bar(stat = "identity", alpha = 0.7, fill = "forestgreen") + 
-  theme_light() +
-  theme(plot.title = element_text(size = 13,
-      family = "sans",
-      face = "bold",hjust = 0.5),
-      panel.background = element_rect(fill = "grey88",
-                                colour = "grey88",
-                                size = 0.5, linetype = "solid"),
-      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
-                                colour = "grey92"), 
-  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
-                                colour = "grey92"),
-  
-    text = element_text(size = 11, family = "sans"),
-    axis.title = element_text(face = "bold"),
-    axis.text.x = element_text(angle = 60, hjust = 1, size=10),
-    axis.text.y = element_text(size = 9)) + 
-  
+  geom_bar(stat = "identity", alpha = 0.9, fill = "darkslateblue") + 
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 7)) +
   labs(title ="Word Frequency without Stop Words" )+
   xlab("Words") +
   ylab("Count")
@@ -752,4 +615,4 @@ df_sentiments_filtered1 %>%
 
 The most common sentiment by a large margin is positive.
 
-Overall, this sentiment analysis isn't as relevant and is subjective, and therefore will not be included in the final report of findsings.
+Overall, this sentiment analysis isn't as relevant and is subjective, and therefore will not be included in the final report of findings.
