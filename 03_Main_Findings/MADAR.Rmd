@@ -14,7 +14,8 @@ ufo_df <- read_csv("UFO_and_Weather.csv")
 Remove non-US observations
 
 ```{r}
-ufo_df<- subset(ufo_df, !(state %in% c("BC", "QC", "ON", "NS", "AB", "MB", "SK", "YT", "NL")))
+ufo_df <- ufo_df %>% 
+  filter(state %in% state.abb)
 ```
 
 Creates new variable 'contains_madar' that is a boolean (True/False) of whether the 'text' variable contains "madar" 
