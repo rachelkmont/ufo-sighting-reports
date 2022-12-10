@@ -15,7 +15,8 @@ ufo_weather <- read_csv("UFO_and_Weather.csv")
 Remove non-US observations
 
 ```{r}
-ufo_weather <- subset(ufo_weather, !(state %in% c("BC", "QC", "ON", "NS", "AB", "MB", "SK", "YT", "NL")))
+ufo_weather <- ufo_weather %>% 
+  filter(state %in% state.abb)
 ```
 
 creates new variable 'weather_na_count' that counts the number of NAs from the weather variables 

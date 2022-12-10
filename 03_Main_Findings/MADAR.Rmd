@@ -14,7 +14,8 @@ ufo_df <- read_csv("UFO_and_Weather.csv")
 Remove non-US observations
 
 ```{r}
-ufo_df<- subset(ufo_df, !(state %in% c("BC", "QC", "ON", "NS", "AB", "MB", "SK", "YT", "NL")))
+ufo_df <- ufo_df %>% 
+  filter(state %in% state.abb)
 ```
 
 Creates new variable 'contains_madar' that is a boolean (True/False) of whether the 'text' variable contains "madar" 
@@ -183,4 +184,19 @@ ggplot(ufo_madar_merge, aes(x = num_distinct_nodes, y = node_report_count)) +
   theme_minimal() + 
   theme(plot.title = element_text(hjust=0.5)) +geom_text(x=750, y=350, label="Correlation=.68", size = 4)
 ggsave("Number_Node_Reports_VS_Num_Distinct_Nodes.jpg", bg="white")
+```
+
+```{r}
+nodes <- ufo_df_madar %>% 
+  filter(contains_madar == TRUE) %>% 
+  group_by(text) %>% 
+  summarise(count = n())
+
+summary(nodes)
+```
+
+```{r}
+nodes %>% 
+  group_by(count) %>% 
+  summarise(count_of_count = n())
 ```
