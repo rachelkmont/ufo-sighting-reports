@@ -1,0 +1,529 @@
+---
+title: "Population, Shapes, Phenomena"
+author: "Edmund Hui, Rio Jia, Rachel Montgomery, Yuning Wu"
+date: "2022-11-02"
+output: pdf_document
+---
+
+# Dependencies & Read in Data
+
+```{r}
+#install.packages("tidyverse")
+#install.packages("stringr")
+#install.packages("usmap")
+#install.packages("cowplot")
+#install.packages("wordcloud")
+library(wordcloud)
+library(cowplot)
+library(tidyverse)
+library(stringr)
+library(usmap)
+require(ggplot2)
+require(ggmap)
+require(maps)
+```
+
+```{r}
+df <- read_csv("data/UFO_and_Weather.csv")
+df
+```
+
+# Question 1: Do UFO sightings happen in more densely populated areas?
+
+We would have to add in some sort of population/census data, but could be interesting to look into
+
+```{r}
+citypop <- read_csv("data/populations_by_city.csv")
+
+# Filter only the municipalities
+citypop <- citypop %>% filter(TYPE %in% c("city", "town", "village")) 
+citypop
+```
+
+```{r}
+df <- df %>% 
+  left_join(citypop, by = c("city"="SHORTNAME", "state"="STSHORT")) %>% 
+  rename(population_2021 = POPESTIMATE2021, geo_class=TYPE)
+
+df 
+```
+
+## Group by municipalities (administrative division)
+
+```{r}
+muni <- df %>% drop_na(geo_class) %>% group_by(geo_class) %>% summarise(count=n()) 
+muni %>% ggplot(aes(x=geo_class, y=count)) + geom_col() + 
+  theme_minimal() + 
+  labs(title="Number of UFO Sightings by Administrative Type") + 
+  xlab("Administrative Division") + 
+  ylab("Number of Sightings")
+```
+## Group By Population
+
+Use case_when to split population into even & logical levels
+
+```{r}
+#mean(citypop$POPESTIMATE2021)
+#mean(df$population_2021, na.rm=TRUE)
+```
+
+## UFO Reports Per Capita / Per State 
+
+```{r}
+states <- read_csv("data/statepop.csv", col_names=FALSE)
+states <- states %>% select(X1, X4)
+names(states) <- c("state", "population_2021")
+states$state <- substr(states$state, 2, 100)
+states$state <- state.abb[match(states$state,state.name)]
+states <- states %>% drop_na()
+```
+```{r}
+sight_counts <- df %>% group_by(state) %>% summarise(count=n())
+states <- states %>% left_join(sight_counts, by="state") %>% mutate(obs_100k = (count/population_2021)*100000)
+```
+
+```{r}
+states %>% arrange(obs_100k)
+```
+
+```{r}
+plot_usmap(data = states, values = "count", color = "black") + 
+  scale_fill_continuous( low = "white", high = "red", name = "Population (2015)", label = scales::comma) + 
+  theme(legend.position = "right") + 
+  labs(title="UFO Sightings Per 100K Population by State", subtitle="Montana has the highest sightings per capita with 20.19 sightings per 100k Population")
+```
+
+
+```{r}
+plot_usmap(data = states, values = "obs_100k", color = "black") + 
+  scale_fill_continuous( low = "white", high = "red", name = "Population (2015)", label = scales::comma) + 
+  theme(legend.position = "right") + 
+  labs(title="UFO Sightings Per 100K Population by State", subtitle="Montana has the highest sightings per capita with 20.19 sightings per 100k Population")
+```
+
+
+# Question 2: What are the most common UFO descriptions?
+
+## General Shape Analysis
+
+```{r}
+df %>% drop_na(shape) %>% filter(shape %in% c("light", "circle", "triangle", "unknown", "fireball")) %>%
+  ggplot() + 
+  geom_bar(aes(x = reorder(shape, shape, function(x)-length(x))), fill="#D8DADC") +  
+  #scale_x_discrete(guide = guide_axis(angle = 90)) + 
+  labs(title="Most Common UFO Shapes Sighted", subtitle="Only the top five shapes displayed") +
+  xlab("Shape of UFO Sighted") + 
+  ylab("Number of Sightings") + 
+  theme_minimal() 
+
+ggsave("shapes_overall.png")
+```
+
+
+```{r}
+df %>% drop_na(state) %>% 
+  filter(state %in% c("CA", "FL", "WA", "AZ", "NY")) %>%
+  ggplot() + 
+  geom_bar(aes(x = reorder(state, state, function(x)-length(x))), fill="#D8DADC") +  
+  labs(title="States with the Most UFO Sightings", subtitle="Only the top five states displayed") +
+  xlab("State") + 
+  ylab("Number of Sightings") + 
+  theme_minimal() 
+
+ggsave("states_overall.png")
+```
+
+It is quite likely that "light" shapes occur at night, where it could have very likely been a mistaken street light, plane, or something else. This is corroborated by the time distribution of "light" observations. 
+
+```{r}
+df %>% filter(shape=="light") %>% ggplot() + geom_bar(aes(x=hour))
+```
+
+
+## Which Shapes are Most Common in Each State?
+
+```{r}
+df %>% 
+  group_by(state, shape) %>% 
+  summarise(count=n()) %>% 
+  group_by(state) %>% 
+  top_n(1, count)
+```
+
+
+# Question 3: Do certain cultural phenomena influence UFO sightings?
+
+--- We can add in cultural data like # of sci fi movies released in a year and see if there is a correlation, if a war is happening, etc
+
+## 3.1 Investigate the relationships between google trends data and UFO sightings
+
+```{r}
+df_counts
+```
+
+
+```{r}
+# Read in google trend data
+trends <- read_csv("data/multiTimeline.csv", skip=1)
+
+# Rename columns 
+trends <- trends %>% rename(month=Month,ufo=`ufo: (United States)`, alien=`alien: (United States)`)
+
+# Take only the years we need
+trends <- trends %>% filter(substr(month, 1,4) %in% c("2015","2016","2017","2018","2019"))
+
+# Count occurances each month 
+df_counts <- df %>% group_by(year, month) %>% summarise(count=n()) 
+
+# Add counts to the trends dataframe
+trends$count <- df_counts$count
+```
+
+```{r}
+# Min-Max scale as we are only interested in relative movements
+trends$ufo_scaled <- (trends$ufo-min(trends$ufo))/(max(trends$ufo)-min(trends$ufo))
+trends$alien_scaled <- (trends$alien-min(trends$alien))/(max(trends$alien)-min(trends$alien))
+trends$count_scaled <- (trends$count-min(trends$count))/(max(trends$count)-min(trends$count))
+```
+
+```{r}
+skip_four <- function(x) x[seq_along(x) %% 6 == 0]
+
+trends %>% ggplot(aes(x=month, y=ufo_scaled, group=1)) + 
+  geom_line(aes(colour="\"UFO\" Search Query"), alpha=0.8, linewidth=0.7) + 
+  geom_line(aes(y=alien_scaled, colour="\"Alien\" Search Query"), alpha=0.7, linewidth=0.7) + 
+  geom_line(aes(y=count_scaled, colour="UFO Sightings"), linewidth=1) + 
+  labs(x = "Date (Year-Month)",
+       y = "Scaled Observation Frequncy",
+       color = "Legend") + 
+  scale_colour_manual("Scaled Frequencies", 
+                      breaks = c("\"UFO\" Search Query", "\"Alien\" Search Query", "UFO Sightings"),
+                      values = c("red", "blue", "black")) + 
+  labs(title="UFO Sightings Relative to Related Search Queries") +
+  scale_x_discrete(breaks=skip_four, guide = guide_axis(angle = 45)) + 
+  #scale_x_discrete(breaks=pretty_breaks(n=3)) + 
+  annotate("text", x=15, y=0.98, label= "Nov \n 2015") + 
+  geom_point(x=11, y=1, colour="red", shape=17, size=2) +
+  theme_minimal()+
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8)) 
+  #theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+
+ggsave("searches.jpeg")
+```
+
+
+## 3.1 Investigate the relationships between sci-fi movie data and ufo sightings
+
+Data adapted from https://www.the-numbers.com/market/creative-type/Science-Fiction 
+
+```{r}
+trends %>% ggplot(aes(x=month, y=count, group=1)) + geom_line() +
+  scale_x_discrete(guide = guide_axis(angle = 90)) + geom_segment(aes(x = 12, y = 400, xend = 12, yend = 700),
+                  arrow = arrow(length = unit(0.3, "cm")), colour="darkslateblue") +
+  
+  scale_x_discrete(guide = guide_axis(angle = 90)) + geom_segment(aes(x = 24.5, y = 1300, xend = 24.5, yend = 600),
+                  arrow = arrow(length = unit(0.3, "cm")), colour="darkslateblue") +
+  
+  scale_x_discrete(guide = guide_axis(angle = 90)) + geom_segment(aes(x = 36, y = 1000, xend = 36, yend = 900),
+                  arrow = arrow(length = unit(0.3, "cm")), colour="darkslateblue") +
+  
+  scale_x_discrete(guide = guide_axis(angle = 90)) + geom_segment(aes(x = 41.5, y = 800, xend = 41.5, yend = 430),
+                  arrow = arrow(length = unit(0.3, "cm")), colour="darkslateblue") +
+  
+  annotate("text", x=12, y=320, label="Rogue One: A Star Wars Story Released \n Grossing $741M", size=3) + 
+  annotate("text", x=27, y=1400, label="Star Wars Ep. VII Released \n Grossing $425M", size=3) + 
+  annotate("text", x=36, y=1100, label="Star Wars Ep. VIII Released \n Grossing $425M", size=3) + 
+  annotate("text", x=44, y=900, label="Jurassic World \n Fallen Kingdom Released \n Grossing $390M", size=3) +
+  
+  xlab("Date (Year-Month)") + 
+  ylab("Number of Sightings")+
+  
+  scale_x_discrete(breaks=skip_four, guide = guide_axis(angle = 45)) +
+  labs(title="Sighting Frequencies and Major Movie Releases") + 
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8)) 
+  
+  
+ggsave("movie_releases.jpeg")
+```
+
+```{r}
+year <- c("2015", "2016", "2017", "2018", "2019")
+n_movies <- c(41, 37, 40, 40, 24)
+total_gross <- c(3149106114, 1527475428, 1867466016, 1939884926, 1107000236)
+top_movie <- c("Star Wars Ep. VII: The Force Awakens", "Rogue One: A Star Wars Story", "Star Wars Ep. VIII: The Last Jedi", "Jurassic World: Fallen Kingdom", "Star Wars: The Rise of Skywalker")
+top_movie_gross <- c(742208942, 424987707, 517218368, 417719760, 390706234)
+
+yearly_gross <- data.frame(year, n_movies, gross, top_movie, top_movie_gross)
+yearly_gross
+```
+
+
+```{r}
+trends %>% 
+  separate(month, c("year", "month"), "-") %>%
+  group_by(year) %>% 
+  summarise(sightings = sum(count))
+
+yearly_gross
+```
+
+
+```{r}
+trend_plot <- trends %>% 
+  separate(month, c("year", "month"), "-") %>%
+  group_by(year) %>% 
+  summarise(sightings = sum(count)) %>% 
+  ggplot() +
+    geom_line(aes(x=year, y=sightings), group=1) + labs(title="UFO Sightings by Year") + 
+    xlab("") + 
+    ylab("Sightings") + 
+    theme_bw()
+
+gross_plot <- yearly_gross %>% 
+  ggplot(aes(x=year, y=gross)) + 
+    geom_line(group=1, , colour="red") + 
+    labs(title="Gross Revenue of Sci-Fi Movies by Year") + 
+  xlab("") + 
+    ylab("Gross Revenue ($)") + 
+    theme_bw()
+
+n_movies_plot <- yearly_gross %>% 
+  ggplot(aes(x=year, y=n_movies), ) + geom_line(group=1, colour="blue") + 
+  xlab("Year") + 
+    ylab("Number of Movies Released") +
+    labs(title="Number of Scifi Movies Released by Year") + 
+    theme_bw()
+
+```
+
+```{r, fig.height=10, fig.width=8}
+
+title <- ggdraw() + 
+  draw_label(
+    "Miles per gallon decline with displacement and horsepower",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+
+plot_grid(trend_plot, gross_plot, n_movies_plot, 
+          align='v', 
+          labels=c("A", "B", "C"),
+          nrow=3 
+          )
+
+ggsave("movies_gross.jpeg")
+```
+
+```{r}
+df %>% filter(!grepl("MADAR", text))
+```
+
+## 4. Investigate the relationship between Alcohol consumption per state and sightings
+
+```{r}
+alcohol <- read_csv("data/alcohol.csv")
+alcohol$state <- state.abb[match(alcohol$state,state.name)]
+alcohol
+```
+
+```{r}
+alc <- states %>% 
+  left_join(alcohol, by="state")
+```
+
+```{r}
+cor(alc$obs_100k, alc$gallonspercap)
+```
+
+
+```{r}
+sd(alc$gallonspercap)
+```
+
+
+```{r}
+states %>% 
+  left_join(alcohol, by="state") %>% 
+  ggplot() + 
+    geom_point(aes(x=gallonspercap, y=obs_100k)) + 
+    geom_text(aes(x=gallonspercap, y=obs_100k, label=ifelse(rank %in% c(1, 51), state, ""), vjust=2)) + 
+    geom_vline(xintercept=2.4634, linetype="dashed", color="darkslateblue") + 
+    geom_text(aes(x=2.4634, label="Average Consumption", y=18), colour="darkslateblue", angle=90, size=3, vjust=-1, hjust=0.6) + 
+    labs(title="Observations per 100K against Alcohol Consumption For Each State") + 
+    xlab("Alcohol Consumption (Gallons Per Capita)") + 
+    ylab("UFO Observations (Per 100K Population)") + 
+    theme_minimal() + 
+    theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))
+
+ggsave("alcohol_consumption.jpeg")
+```
+
+## 5. Educational Attainment and UFO SIghtings
+
+```{r}
+education <- read_csv("data/education.csv")
+education$state <- state.abb[match(education$state,state.name)]
+```
+
+```{r}
+edu <- states %>% 
+  left_join(education, by="state")
+```
+
+
+```{r}
+cor(edu$obs_100k, edu$PercentHighSchoolOrHigher)
+max_ed <- max(edu$PercentHighSchoolOrHigher)
+min_ed <- min(edu$PercentHighSchoolOrHigher)
+mean_ed <- mean(edu$PercentHighSchoolOrHigher)
+```
+
+```{r}
+states %>% 
+  left_join(education, by="state") %>% ggplot() + 
+  geom_point(aes(x=PercentHighSchoolOrHigher, y=obs_100k)) + 
+  geom_text(aes(x=PercentHighSchoolOrHigher, y=obs_100k, label=ifelse(PercentHighSchoolOrHigher > 93.3 | PercentHighSchoolOrHigher < 85 , state, ""), vjust=-1)) +
+  geom_vline(xintercept=mean_ed, linetype="dashed", color="darkslateblue") + 
+  geom_text(aes(x=mean_ed, label="Average Graduation Rate", y=18), colour="darkslateblue", angle=90, size=3, vjust=-1, hjust=0.6) + 
+  labs(title="Observations per 100K against Percentage Graduating High School") + 
+  xlab("Percentage of Population Graduating High School") + 
+  ylab("UFO Observations (Per 100K Population)") + 
+  scale_y_continuous(limits = c(0, 22)) + 
+ 
+  theme_minimal() +
+  
+    theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))
+
+ggsave("graduating.jpeg")
+```
+
+```{r}
+intel <- read_csv("data/iq.csv")
+intel$state <- state.abb[match(intel$state,state.name)]
+```
+
+```{r}
+states %>% 
+  left_join(intel, by="state") %>% ggplot() + 
+  geom_point(aes(x=averageIQ, y=obs_100k)) + 
+  labs(title="Observations per 100K against Intelligence Quotient For Each State") + 
+  xlab("Average IQ") + 
+  ylab("UFO Observations (Per 100K Population)") + 
+  theme_bw()
+```
+
+## Introduction Pieces (Data at a glance)
+
+### Plotting the map of cities 
+
+Use the first occurance of each city's coordinates, as they will be close enough anyway. 
+
+
+```{r}
+df 
+```
+
+
+```{r}
+distinct_cities <- df %>% 
+  filter(state %in% state.abb) %>% 
+  distinct(city, state, .keep_all=TRUE)
+
+distinct_cities <- distinct_cities %>% select("city", "state", "city_latitude", "city_longitude")
+distinct_cities
+```
+```{r}
+df
+```
+
+
+```{r}
+states <- map_data("state")
+```
+
+```{r}
+city_counts <- df %>%
+  filter(state %in% state.abb) %>%
+  group_by(state,city) %>% 
+  summarize(count = n()) %>% 
+  left_join(distinct_cities, by=c("state", "city"))
+```
+```{r}
+city_counts_filtered <- city_counts %>% filter(count > 10)
+```
+
+```{r}
+LA <- map_data("state", region="louisiana")
+```
+
+```{r}
+MainStates <- map_data("state")
+
+ggplot() + 
+  geom_polygon(data=MainStates, aes(x=long, y=lat, group=group),
+              color="black", fill="#D8DADC" ) + 
+              geom_polygon() +
+              coord_map() +
+              geom_point(data=city_counts_filtered, aes(x=city_longitude, y=city_latitude, size=count), shape=21, colour="darkslateblue", fill="darkslateblue", alpha=0.8) + 
+              scale_y_continuous(limits = c(25, 50)) + 
+              scale_x_continuous(limits = c(-125, -60)) +
+  labs(title="Occurances of UFO Sightings across U.S Cities 2015-2019",
+       subtitle="represented for cities with at least 10 sightings. Size of points corresponds to sighting count") + 
+  
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(), panel.background = element_rect(fill='transparent'), #transparent panel bg
+        plot.background = element_rect(fill='transparent', color=NA), 
+        plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        )
+
+ggsave("sighting_map.png")
+```
+
+
+### Basic Time Series
+
+
+```{r}
+trends %>% ggplot(aes(x=month, y=count, group=1)) + geom_line() +
+  scale_x_discrete(guide = guide_axis(angle = 90)) +
+  labs(title="UFO Sightings by Month (2015-2019)") + 
+  xlab("Year-Month") + 
+  ylab("Number of Sightings") + 
+  scale_x_discrete(breaks=skip_four, guide = guide_axis(angle = 45)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))  
+  
+
+ggsave("month_sightings.png")
+```
+
+
