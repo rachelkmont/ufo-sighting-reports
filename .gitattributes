@@ -1,3 +1,4 @@
 nuforc_reports filter=lfs diff=lfs merge=lfs -text
 nuforc_reports.csv filter=lfs diff=lfs merge=lfs -text
 *.csv filter=lfs diff=lfs merge=lfs -text
+populations_by_city.csv filter=lfs diff=lfs merge=lfs -text
