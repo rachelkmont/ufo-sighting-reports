@@ -71,6 +71,9 @@ library(readr)
 UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
     col_types = cols(month = col_character(), 
         hour = col_time(format = "%H")))
+
+#taking out non-us states
+UFO_and_Weather <- subset(UFO_and_Weather, !(state %in% c("BC", "QC", "ON", "NS", "AB", "MB", "SK", "YT", "NL")))
 ```
 
 ### Viewing Data
@@ -262,7 +265,7 @@ For the month of July, which days are the most popular?
 
 ```{r}
 just_july <- UFO_and_Weather %>%
-  filter(month== 7)
+  filter(month== 7) 
 
 #plotting
 ggplot(just_july, aes(x = reorder(day, day, FUN = length))) +
@@ -511,7 +514,7 @@ ufo_no_stop %>%
   theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
         text = element_text(size = 10),
         axis.title = element_text(face = "bold"),
-        axis.text.x = element_text(size = 7)) +
+        axis.text.x = element_text(angle=45,size = 9)) +
   labs(title ="Word Frequency without Stop Words" )+
   xlab("Words") +
   ylab("Count")
@@ -543,11 +546,16 @@ Now, we can create a word cloud.
 ```{r}
 #generate word cloud
 set.seed(1234)
-wordcloud(words = term_dox_matrix $word, freq = term_dox_matrix $freq, min.freq = 1,
-          max.words=200, random.order=FALSE, rot.per=0.35, 
+wordcloud(words = term_dox_matrix $word, freq = term_dox_matrix$freq, min.freq = 1, 
           colors=brewer.pal(8, "Dark2"),  scale=c(3.5,0.25))
 
-#In order to have words not cropped out from spacing issues, changed scale 
+#In order to have words not cropped out from spacing issues, changed scale
+
+wordlcoud(words = term_dox_matrix $word, freq = term_dox_matrix$freq)
+
+
+set.seed(1234) # for reproducibility 
+wordcloud(words =term_dox_matrix $word, freq = term_dox_matrix$freq, min.freq = 1,           max.words=200, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
 ```
 
 ```{r}

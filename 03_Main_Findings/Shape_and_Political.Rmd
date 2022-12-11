@@ -10,6 +10,11 @@ library(tidyverse)
 library(plotly)
 library(ggrepel)
 library(ggalluvial)
+library(ggpp)
+```
+
+```{r}
+ggsave <- function(..., bg = 'white') ggplot2::ggsave(..., bg = bg)
 ```
 
 ```{r}
@@ -23,8 +28,6 @@ state <- data.frame(state.abb, state.name)
 
 us_pop1 <- us_pop %>% 
   left_join(state, by = c("STATE" = "state.name"))
-
-us_pop1$state.abb[us_pop1["STATE"] == "District of Columbia"] = "DC"
 ```
 
 ```{r}
@@ -35,9 +38,14 @@ ufo3 <- ufo %>%
   summarise(n = n()) %>% 
   arrange(desc(n)) %>% 
   top_n(1, n) %>% 
-  filter(shape != "unknown" & shape != "other" )
+  filter(shape != "unknown" & shape != "other")
 
-#NE has circle, oval, triangle all the same counts
+ufo3_3 <- ufo %>% 
+  inner_join(us_pop1, by = c("state" = "state.abb")) %>% 
+  filter(shape != "light") %>% 
+  group_by(state, shape) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
 ```
 
 ## Plot 1
@@ -47,28 +55,31 @@ ggplot(data = ufo3_3, mapping = aes(y = n, axis1 = state, axis2 = shape,
                                                                 shape == "triangle" ~ "triangle",
                                                                 TRUE ~ "other")))+
   geom_alluvium()+
-  # geom_stratum(width = 1/4, fill = "white", color = "black") +
-  # geom_text(stat = "stratum", aes(label = after_stat(stratum)))+
+  scale_x_discrete(limits = c("State", "Shape"), expand = c(.05, .05))+
   theme_minimal()+
-  scale_fill_manual(values = c("purple", "grey", "darkgreen"))+
+  scale_fill_manual(values = c("darkslateblue", "grey", "darkgreen"))+
   guides(fill=guide_legend(title="Shape"))+
-  ggtitle("UFO Sighting Shapes in Each State")+
+  ggtitle("Shapes Reported From UFO Sightings Between \n2015-2019 From Each US State")+
   ylab("Number of Sightings")+
   theme(axis.text.y = element_text(size=8), 
-        axis.title=element_text(size=10), 
-        plot.title = element_text(size = 15, hjust = 0.5),
-        axis.text.x = element_blank(),
+        axis.title=element_text(size=10, face = "bold"), 
+        plot.title = element_text(size = 13, face = "bold", hjust = 0.5),
         axis.ticks.y = element_line(),
-        legend.title = element_text(size=10), 
+        legend.title = element_text(size=10, face = "bold"), 
         legend.text = element_text(size=8))
-  
+
 ggsave("shapes_allu.png")
 ```
 
 ## Plot 2
+The sizing of plot elements in this plot is adjusted according to the web view. Please view the downloaded html file for the best result!  
+
 ```{r}
 colorScale <- data.frame(z=c("circle", "triangle", "oval", "fireball", "sphere"),col=c("#440053","#440053","#FDE624","#FDE624", "FDB624"))
 colorScale$col <- as.character(colorScale$col)
+
+t <- list(
+  size = 18)
 
 l <- list(color = toRGB("white"), width = 2)
 g <- list(
@@ -79,33 +90,49 @@ g <- list(
 )
 fig <- plot_geo(ufo3, locationmode = 'USA-states')
 fig <- fig %>% add_trace(
-    x = ~state, y = ~state, locations = ~state, text = ~n,
-    type = 'scatter', mode = 'markers', symbol = ~shape, symbols = c('circle', 'hexagram', 'diamond-tall', 'circle-x-open', 'triangle-up'), color = ~shape, marker = list(size = 12)
-  )
+    x = ~state, y = ~state, locations = ~state,
+    type = 'scatter', mode = 'markers', symbol = ~shape, symbols = c('circle', 'hexagram', 'diamond-tall', 'circle-x-open', 'triangle-up'), color = ~shape, marker = list(size = 20)
+  ) %>% 
+  add_text(locations = ~state, x = ~state, y = ~state, text = ~n, showlegend = FALSE, hoverinfo='skip')
 fig <- fig %>% colorbar(title = "proportions")
 fig <- fig %>% layout(
-    title = 'Shapes Reported From UFO Sightings in the US Between 2015-2019',
+    title = list(text = 'Most Popular UFO Shapes Reported Between 2015-2019 From Each US State', font = t),
     geo = g
   )
 
+htmlwidgets::saveWidget(fig, file = "image.html")
 fig
 ```
 
 
 # Political
 ```{r}
+political <- read_csv("political_affiliations.csv")
+political <- political %>% 
+  rename("Republican" = `Republican/lean Rep.`,
+         "Democrat" = `Democrat/lean Dem.`) %>% 
+  mutate(Republican = as.numeric(sub("%", "", Republican,fixed=TRUE))/100,
+         Democrat = as.numeric(sub("%", "", Democrat,fixed=TRUE))/100,
+         `No lean` = as.numeric(sub("%", "", `No lean`,fixed=TRUE))/100) 
+
+ufo1 <- ufo %>% 
+  group_by(state) %>% 
+  summarize(count = n())
+
+ufo2 <- ufo1 %>% 
+  inner_join(us_pop1, by = c("state" = "state.abb")) %>% 
+  mutate(proportion = (count / POPESTIMATE2019) * 1000) %>% 
+  select(state, proportion)
+
 ufo4 <- ufo %>% 
   inner_join(ufo2, by = c("state")) %>% 
   left_join(state, by = c("state" = "state.abb")) %>% 
   left_join(political, by = c("state.name" = "State")) %>% 
   group_by(state) %>%
-  # summarise(n = n(), `Republican/lean Rep.` = `Republican/lean Rep.`)
   mutate(n = n()) %>% 
   distinct(state, .keep_all=TRUE) %>% 
   select(state, proportion, Republican, Democrat)
-```
 
-```{r}
 ufo4 <- ufo4 %>% 
   mutate(party = case_when(Republican - Democrat > 0.02 ~ "Republican",
                              Republican - Democrat < -0.02 ~ "Democrat",
@@ -113,23 +140,40 @@ ufo4 <- ufo4 %>%
          diff = abs(Republican - Democrat))
 ```
 
+
+
 ## Plot 3
 ```{r}
 my_colors <- c("Democrat" = "#0000FF", "Republican" = "#FF0000", "Swing" = "#00FF00")
+jitter <- position_jitter(width = 0.08, height = 0, seed = 123)
+jitter_nudge <- position_jitternudge(width = 0.08, height = 0, seed = 123, x = 0.12, y = 0.005, direction = "split", nudge.from = "jittered")
 x <- ufo4 %>% 
   drop_na() %>% 
-  ggplot()+
-  geom_point(aes(x = party, y = proportion, color = party, size = diff), alpha = 0.5)+
-  geom_text_repel(data=subset(ufo4, state != "DC" & (proportion > 0.16 | proportion < 0.03)),
-            aes(party,proportion,label=state),
-            nudge_x = 0.2, vjust = 0, size = 3)+
+  ggplot(mapping = aes(x = party, y = proportion))+
+  geom_point(aes(color = party, size = diff), position = jitter, alpha = 0.5)+
+  geom_text_s(mapping = aes(label = ifelse((proportion > 0.16 | proportion < 0.03), state, "")),
+                  position = jitter_nudge)+
   scale_color_manual(values = my_colors)+
   theme_minimal()+
-  ggtitle("Self-identified Political Party Affilations and Proportions of \nUFO sightings per 1000 State Residents")+
+  ggtitle("Political Party Affilations and Proportions of \nUFO sightings per 1000 State Residents")+
   ylab("Proportions of UFO Sightings \nper 1000 State Residents")+
   xlab("Party Affiliation")+
-  guides(size=guide_legend(title="Affiliation Strength"), color = guide_legend(title="Party Affiliation"))
+  guides(size=guide_legend(title="Affiliation Strength"), color = guide_legend(title="Party Affiliation"))+
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8),
+        legend.title = element_text(size=10, face = "bold"), 
+        legend.text = element_text(size=8))
 x
+```
+
+
+```{r}
 ggsave("politics.png")
 ```
+
+
+
+
 
