@@ -24,7 +24,7 @@ require(maps)
 ```
 
 ```{r}
-df <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv")
+df <- read_csv("../02_Data/Clean_UFO_Dataset.Rmd")
 df
 ```
 
@@ -70,7 +70,7 @@ Use case_when to split population into even & logical levels
 ## UFO Reports Per Capita / Per State 
 
 ```{r}
-states <- read_csv("../01_Preprocessing/tatepop.csv", col_names=FALSE)
+states <- read_csv("../01_Preprocessing/statepop.csv", col_names=FALSE)
 states <- states %>% select(X1, X4)
 names(states) <- c("state", "population_2021")
 states$state <- substr(states$state, 2, 100)
