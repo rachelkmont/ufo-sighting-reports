@@ -21,7 +21,7 @@
 - MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
 - Missingness_and_Data_Validations.Rmd: Investigation of Missing data and data validations
 - Weather.Rmd: Investigation of the weather around UFO reports using UFO_and_Weather.csv 
-- Shape_and_Political.Rmd: Investigation of shape of political affiliations
+- Shape_and_Political.Rmd: Investigation of shape and political affiliations
 - [cultural]
 
 ### 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
