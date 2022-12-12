@@ -18,12 +18,12 @@ ggsave <- function(..., bg = 'white') ggplot2::ggsave(..., bg = bg)
 ```
 
 ```{r}
-ufo <- read_csv("UFO_and_Weather.csv")
+ufo <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv")
 ```
 
 # Shape
 ```{r}
-us_pop <- read_csv("2019_Census_US_Population_Data_By_State_Lat_Long.csv")
+us_pop <- read_csv("../01_Preprocessing/2019_Census_US_Population_Data_By_State_Lat_Long.csv")
 state <- data.frame(state.abb, state.name)
 
 us_pop1 <- us_pop %>% 
@@ -107,7 +107,7 @@ fig
 
 # Political
 ```{r}
-political <- read_csv("political_affiliations.csv")
+political <- read_csv("../01_Preprocessing/political_affiliations.csv")
 political <- political %>% 
   rename("Republican" = `Republican/lean Rep.`,
          "Democrat" = `Democrat/lean Dem.`) %>% 
