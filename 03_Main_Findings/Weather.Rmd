@@ -10,7 +10,7 @@ library(scales)
 ```
 
 ```{r}
-ufo_weather <- read_csv("UFO_and_Weather.csv")
+ufo_weather <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv")
 ```
 Remove non-US observations
 
