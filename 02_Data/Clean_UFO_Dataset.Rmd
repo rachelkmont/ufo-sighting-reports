@@ -12,7 +12,7 @@ library(tidyverse)
 ```
 
 ```{r}
-ufo_uncleaned <- read_csv("nuforc_reports.csv")
+ufo_uncleaned <- read_csv("../01_Preprocessing/nuforc_reports.csv")
 ```
 
 Remove the following variables:
