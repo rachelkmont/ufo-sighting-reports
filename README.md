@@ -4,6 +4,13 @@
 ### 01_Preprocessing https://github.com/DSI-EDA-2022/Team10_final/tree/main/01_Preprocessing
 - nuforc_reports: the raw data downloaded from https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000 
 - Missingness_Investigation.Rmd: preliminary analysis of the raw data
+- 2019_Census_US_Population_Data_By_State_Lat_Long.csv: 
+- alcohol.csv: data of alcohol consumption by state 
+- education.csv data of education level by state 
+- iq.csv data of iq levels by state
+- multiTimeline.csv google trends data 
+- populations_by_city.csv city populations 2021
+- statepop.csv state populations 2021
 ### 02_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data
 - Clean_UFO_Dataset.Rmd: file used to clean the raw data (nuforc_reports) initially
 - JoinWeather.ipynb: file used to join weather data 
@@ -22,7 +29,7 @@
 - Missingness_and_Data_Validations.Rmd: Investigation of Missing data and data validations
 - Weather.Rmd: Investigation of the weather around UFO reports using UFO_and_Weather.csv 
 - Shape_and_Political.Rmd: Investigation of shape and political affiliations
-- [cultural]
+- Population_and_Phenomenon.Rmd: Investigation of population effects and cultural patterns with cultural phenomenon
 
 ### 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
 - [].pdf: Final Report of our Findings
