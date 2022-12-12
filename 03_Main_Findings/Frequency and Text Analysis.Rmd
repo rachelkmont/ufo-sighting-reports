@@ -68,7 +68,7 @@ Reading in data:
 
 ```{r}
 library(readr)
-UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
+UFO_and_Weather <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv", 
     col_types = cols(month = col_character(), 
         hour = col_time(format = "%H")))
 
