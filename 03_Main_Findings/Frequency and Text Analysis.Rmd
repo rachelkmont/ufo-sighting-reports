@@ -68,7 +68,7 @@ Reading in data:
 
 ```{r}
 library(readr)
-UFO_and_Weather <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv", 
+UFO_and_Weather <- read_csv("UFO_and_Weather.csv", 
     col_types = cols(month = col_character(), 
         hour = col_time(format = "%H")))
 
@@ -261,6 +261,8 @@ grid.arrange(w15,w16,w17,w18,w19, nrow = 2, top="Sightings per Month")#
 
 We can consistently see that July has a large amount of sightings. Let's investigate just the month of July.
 
+#### July 4th Outlier
+
 For the month of July, which days are the most popular?
 
 ```{r}
@@ -280,6 +282,38 @@ ggplot(just_july, aes(x = reorder(day, day, FUN = length))) +
         axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 7)) +
         coord_flip()
+
+#slicing the top 10 values to improve readability of plot
+
+#slicing the dataset
+just_july_counts <- just_july %>%
+  group_by(day) %>%
+  summarise(counts = n())
+#making day a character variable to make plotting easier
+just_july_counts$day <- as.character(just_july_counts$day)
+
+#slice for top 10 days
+july_top_ten <- just_july_counts %>%
+  #arrange(desc(counts)) %>% 
+ #group_by(day) %>%
+  slice(1:10) %>%
+ arrange(desc(counts)) 
+
+#plotting
+ggplot(july_top_ten, aes(x = reorder(day,counts), y=counts)) +
+  geom_col(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
+  labs(title = "UFO Sightings in the month of July") +
+  xlab("Day") +
+  ylab("Number of sightings") +
+   theme_minimal() +
+  theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
+        text = element_text(size = 10),
+        axis.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 9),
+        axis.text.y = element_text(size = 9, face="bold")) +
+        coord_flip()
+
+
 ```
 
 Wow!!! The fourth of july has about 2.5x more than all other days!! Some possible explanations for this are because there are a ton of fireworks going off, which cause light and sound to be in the sky, and could be mistaken for UFOS. Also there are air shows that occur, which could also be reported as UFOS. Because of these festivities, many people are out at night and looking at the sky, so mere exposure effect could be play. Additionally, it should be noted that this is a national holiday, and one that is often celebrated with alcohol, which conflicts the reliability of these reports.
@@ -317,7 +351,7 @@ ggplot(UFO_and_Weather, aes(x=hour)) +
   theme(plot.title = element_text(size = 13, face = "bold",hjust = 0.5),
         text = element_text(size = 10),
         axis.title = element_text(face = "bold"),
-        axis.text.x = element_text(size = 8))
+        axis.text.x = element_text(size =9, face="bold"))
  
 ```
 
@@ -357,8 +391,13 @@ We can see from the plot that the shapes are more prevalent/persistent at night 
 #To see the most popular day of the week, we need to manipulate the original date time variable
 UFO_and_Weather$weekday <- weekdays(UFO_and_Weather$date_time)
 
+#making weekday a factor so the plot is in weekly order
+UFO_and_Weather$weekday <- factor(UFO_and_Weather$weekday,
+    levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+
 #plotting
-ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
+ggplot(UFO_and_Weather, aes(x=weekday))+
  geom_bar(alpha = 0.9,  width=0.7, position=position_dodge(width=0.8), fill ="darkslateblue" ) +
   labs(title = "Sightings by day of week") +
   xlab("Day of Week") +
@@ -368,7 +407,7 @@ ggplot(UFO_and_Weather, aes(x=reorder(weekday, weekday, FUN=length)))+
         text = element_text(size = 10),
         axis.title = element_text(face = "bold"),
         axis.text.x = element_text(size = 8),
-        axis.text.y = element_text(size = 7)) +
+        axis.text.y = element_text(size = 9, face="bold")) +
         coord_flip()
 ```
 
