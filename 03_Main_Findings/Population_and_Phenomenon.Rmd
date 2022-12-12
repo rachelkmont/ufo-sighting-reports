@@ -24,7 +24,7 @@ require(maps)
 ```
 
 ```{r}
-df <- read_csv("data/UFO_and_Weather.csv")
+df <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv")
 df
 ```
 
@@ -33,7 +33,7 @@ df
 We would have to add in some sort of population/census data, but could be interesting to look into
 
 ```{r}
-citypop <- read_csv("data/populations_by_city.csv")
+citypop <- read_csv("../01_Preprocessing/populations_by_city.csv")
 
 # Filter only the municipalities
 citypop <- citypop %>% filter(TYPE %in% c("city", "town", "village")) 
@@ -70,7 +70,7 @@ Use case_when to split population into even & logical levels
 ## UFO Reports Per Capita / Per State 
 
 ```{r}
-states <- read_csv("data/statepop.csv", col_names=FALSE)
+states <- read_csv("../01_Preprocessing/tatepop.csv", col_names=FALSE)
 states <- states %>% select(X1, X4)
 names(states) <- c("state", "population_2021")
 states$state <- substr(states$state, 2, 100)
@@ -164,7 +164,7 @@ df_counts
 
 ```{r}
 # Read in google trend data
-trends <- read_csv("data/multiTimeline.csv", skip=1)
+trends <- read_csv("../01_Preprocessing/multiTimeline.csv", skip=1)
 
 # Rename columns 
 trends <- trends %>% rename(month=Month,ufo=`ufo: (United States)`, alien=`alien: (United States)`)
@@ -334,7 +334,7 @@ df %>% filter(!grepl("MADAR", text))
 ## 4. Investigate the relationship between Alcohol consumption per state and sightings
 
 ```{r}
-alcohol <- read_csv("data/alcohol.csv")
+alcohol <- read_csv("../01_Preprocessing/alcohol.csv")
 alcohol$state <- state.abb[match(alcohol$state,state.name)]
 alcohol
 ```
@@ -377,7 +377,7 @@ ggsave("alcohol_consumption.jpeg")
 ## 5. Educational Attainment and UFO SIghtings
 
 ```{r}
-education <- read_csv("data/education.csv")
+education <- read_csv("../01_Preprocessing/education.csv")
 education$state <- state.abb[match(education$state,state.name)]
 ```
 
@@ -417,7 +417,7 @@ ggsave("graduating.jpeg")
 ```
 
 ```{r}
-intel <- read_csv("data/iq.csv")
+intel <- read_csv("../01_Preprocessing/iq.csv")
 intel$state <- state.abb[match(intel$state,state.name)]
 ```
 
