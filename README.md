@@ -31,7 +31,7 @@
 
 ### 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
 - Team10_EDA22_Final_Report.pdf: Final Report of our Findings
-- Team10_EDA22_Final_Presentation.ppt: Final Presentation of our Findings 
+- Team10_EDA22_Final_Presentation.pdf: Final Presentation of our Findings 
 
 
 ## Anticipated Schedule (Subject to Change)
