@@ -9,20 +9,18 @@
 - education.csv data of education level by state 
 - iq.csv data of iq levels by state
 - multiTimeline.csv google trends data 
+- political_affiliations.csv political affiliation data 
 - populations_by_city.csv city populations 2021
 - statepop.csv state populations 2021
 ### 02_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data
 - Clean_UFO_Dataset.Rmd: file used to clean the raw data (nuforc_reports) initially
 - JoinWeather.ipynb: file used to join weather data 
-- [JoinPolitical].Rmd: file used to join political data (name subject to change)
-- [JoinCultural].Rmd: file used to join cultural data (name subject to change)
 ### 02_Data >> Clean_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data/Clean_Data 
 - DataDictionary.pdf: data dictionary of all the variables from the UFO dataset we use and the variables from the joined datasets 
 - UFO_and_Weather.csv: final clean data UFO reports joined to weather data 
 - shape_1.csv: final clean data UFO reports for shape data
 - shape_2.csv: final clean data UFO reports for shape data 2
 - politics.csv: final clean data UFO reports joined to political data
-- [UFO_and_Cultural].csv: final clean data UFO reports joined to cultural data (name subject to change)
 ### 03_Main_Findings https://github.com/DSI-EDA-2022/Team10_final/tree/main/03_Main_Findings 
 - Frequency and Text Analysis.Rmd: Investigation of UFO report frequency and patterns across time as well as a text analysis from the descriptions of UFO reports
 - MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
@@ -32,8 +30,8 @@
 - Population_and_Phenomenon.Rmd: Investigation of population effects and cultural patterns with cultural phenomenon
 
 ### 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
-- [].pdf: Final Report of our Findings
-- [].ppt Final Presentation of our Findings 
+- Team10_EDA22_Final_Report.pdf: Final Report of our Findings
+- Team10_EDA22_Final_Presentation.ppt: Final Presentation of our Findings 
 
 
 ## Anticipated Schedule (Subject to Change)
