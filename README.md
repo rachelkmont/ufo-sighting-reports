@@ -12,14 +12,18 @@
 ### 02_Data >> Clean_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data/Clean_Data 
 - DataDictionary.pdf: data dictionary of all the variables from the UFO dataset we use and the variables from the joined datasets 
 - UFO_and_Weather.csv: final clean data UFO reports joined to weather data 
-- [UFO_and_Political].csv: final clean data UFO reports joined to political data (name subject to change)
+- shape_1.csv: final clean data UFO reports for shape data
+- shape_2.csv: final clean data UFO reports for shape data 2
+- politics.csv: final clean data UFO reports joined to political data
 - [UFO_and_Cultural].csv: final clean data UFO reports joined to cultural data (name subject to change)
 ### 03_Main_Findings https://github.com/DSI-EDA-2022/Team10_final/tree/main/03_Main_Findings 
 - Frequency and Text Analysis.Rmd: Investigation of UFO report frequency and patterns across time as well as a text analysis from the descriptions of UFO reports
 - MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
+- Missingness_and_Data_Validations.Rmd: Investigation of Missing data and data validations
 - Weather.Rmd: Investigation of the weather around UFO reports using UFO_and_Weather.csv 
+- Shape_and_Political.Rmd: Investigation of shape of political affiliations
 - [cultural]
-- [political]
+
 ### 04_Deliverables https://github.com/DSI-EDA-2022/Team10_final/tree/main/04_Deliverables
 - [].pdf: Final Report of our Findings
 - [].ppt Final Presentation of our Findings 
