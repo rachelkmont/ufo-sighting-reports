@@ -4,7 +4,7 @@
 ### 01_Preprocessing https://github.com/DSI-EDA-2022/Team10_final/tree/main/01_Preprocessing
 - nuforc_reports: the raw data downloaded from https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000 
 - Missingness_Investigation.Rmd: preliminary analysis of the raw data
-- 2019_Census_US_Population_Data_By_State_Lat_Long.csv: US population data at 2019 by state 
+- 2019_Census_US_Population_Data_By_State_Lat_Long.csv: US population data in 2019 by state 
 - alcohol.csv: data of alcohol consumption by state 
 - education.csv: data of education level by state 
 - iq.csv: data of iq levels by state
@@ -18,9 +18,9 @@
 ### 02_Data >> Clean_Data https://github.com/DSI-EDA-2022/Team10_final/tree/main/02_Data/Clean_Data 
 - DataDictionary.pdf: data dictionary of all the variables from the UFO dataset we use and the variables from the joined datasets 
 - UFO_and_Weather.csv: final clean data UFO reports joined to weather data 
-- shape_1.csv: final clean data UFO reports for shape data
-- shape_2.csv: final clean data UFO reports for shape data 2
-- politics.csv: final clean data UFO reports joined to political data
+- shape_1.csv: final clean data UFO reports for shape alluvium plot
+- shape_2.csv: final clean data UFO reports for shape interactive Plotly plot
+- politics.csv: final clean data UFO reports for political plot
 ### 03_Main_Findings https://github.com/DSI-EDA-2022/Team10_final/tree/main/03_Main_Findings 
 - Frequency and Text Analysis.Rmd: Investigation of UFO report frequency and patterns across time as well as a text analysis from the descriptions of UFO reports
 - MADAR.Rmd: Investigation of the patterns of reports from MADAR nodes
