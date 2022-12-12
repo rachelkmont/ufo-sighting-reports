@@ -9,7 +9,7 @@ library(plotly)
 ```
 
 ```{r}
-ufo_df <- read_csv("UFO_and_Weather.csv")
+ufo_df <- read_csv("../02_Data/Clean_Data/UFO_and_Weather.csv")
 ```
 Remove non-US observations
 
