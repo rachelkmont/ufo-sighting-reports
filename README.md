@@ -1,5 +1,5 @@
-# Welcome to UFO Sighting Reports 2015-2019!
-### Edmund, Rachel, Rio, and Yuning, DS 5610 Fall 2022 Team 10 
+# UFO Sighting Reports 2015-2019!
+### Created by Edmund Hui, Rachel Montgomery, Rio Jia, and Yuning Wu in Fall 2022
 
 ### 01_Preprocessing https://github.com/DSI-EDA-2022/Team10_final/tree/main/01_Preprocessing
 - nuforc_reports: the raw data downloaded from https://www.kaggle.com/datasets/rishidamarla/ufo-sightings-approx-100000 
